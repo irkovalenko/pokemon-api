@@ -9,6 +9,7 @@ class Pokemon extends Model
     protected $table = 'pokemons';
     protected $fillable = [
         'name',
+        'type',
         'image_path',
         'cry',
         'if_banned',
@@ -21,12 +22,12 @@ class Pokemon extends Model
 
     public function scopeNotBanned($query)
     {
-        return $query->where('if_banned', false);
+        return $query->where('if_banned', 0);
     }
 
     public function scopeBanned($query)
     {
-        return $query->where('if_banned', true);
+        return $query->where('if_banned', 1);
     }
 
     public function user()

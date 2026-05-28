@@ -1,16 +1,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { POKEMON_TYPES } from '@/config/pokemonTypes';
+import Dropdown from '@/Components/Dropdown';
+import PrimaryButton from '@/Components/PrimaryButton';
+
 
 export default function Pokemons({ auth, pokemons }) {
-
+    const user = usePage().props.auth.user;
+    const isAdmin = user?.role === 'admin';
     const handlePageChange = (url) => {
         if (url) router.visit(url);
     }
 
-    const getIdFromUrl = (url) => {
-        const parts = url.split('/').filter(Boolean);
-        return parts[parts.length - 1];
-    }
+
+    const handleTypeFilter = (type) => {
+    router.visit(route('pokemons-dashboard'), {
+        data: { type },
+        preserveState: true,
+    });
+};
+
+  const handleNameFilter = (name) => {
+    router.visit(route('pokemons-dashboard'), {
+        data: { name },
+        preserveState: true,
+    });
+};
 
     return (
         <AuthenticatedLayout
@@ -22,32 +37,83 @@ export default function Pokemons({ auth, pokemons }) {
             }
         >
             <Head title="Pokemons" />
+            <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+<div className = "py-6">
+            <Dropdown>
+    <Dropdown.Trigger>
+        <button className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white">
+            Filter by pokemon type ▼
+        </button>
+    </Dropdown.Trigger>
+    <Dropdown.Content align="left" width="70">
+        {/* Reset filter */}
+        <button
+            onClick={() => handleTypeFilter('')}
+            className="block w-full px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100"
+        >
+            All types
+        </button>
 
-            <div className="py-12">
+        {/* Type options */}
+        {Object.entries(POKEMON_TYPES).map(([type, info]) => (
+            <button
+                key={type}
+                onClick={() => handleTypeFilter(type)}
+                className="block w-full px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 capitalize"
+            >
+                {info.icon} {type}
+            </button>
+        ))}
+    </Dropdown.Content>
+</Dropdown>
+<div className="mt-2">
+ <input
+        type="text"
+        placeholder="Search by name..."
+        onChange={(e) => handleNameFilter(e.target.value)}
+        className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
+    />
+    </div>
+</div>
+
+            <div className="py-3">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-
                     <div className="grid gap-6 lg:grid-cols-4">
                         {pokemons.data.map((pokemon) => {
-                            const id = getIdFromUrl(pokemon.url);
-                            const image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-
-                            return (
+                            const typeInfo = POKEMON_TYPES[pokemon.type];
+                            console.log(pokemon.id, pokemon.name);
+                            
+                            return(
                                 <div
                                     key={pokemon.name}
                                     className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition cursor-pointer dark:bg-zinc-900"
-                                    onClick={() => router.visit(route('pokemons.show', id))}
+                                    onClick={() => router.visit(route('pokemons.show', pokemon.name))}
                                 >
+                                    {isAdmin && (
+                                    <div className ="self-start">
+                                     <PrimaryButton onClick={(e) => {
+                                        e.stopPropagation();
+                                     router.post(route('pokemons.toggleBan', pokemon.id));
+}
+                                     }>
+                                        {pokemon.if_banned  ? '🚫 banned' : '✅ active'}
+                                        </PrimaryButton>
+                                     </div>
+                                    )
+                                }
                                     <img
-                                        src={image}
+                                        src={pokemon.image_path}
                                         alt={pokemon.name}
                                         className="w-32 h-32 object-contain"
                                     />
                                     <h2 className="text-lg font-semibold capitalize text-gray-800 dark:text-white">
                                         {pokemon.name}
                                     </h2>
+                                    <span>{pokemon.type} {typeInfo?.icon} </span>
                                 </div>
                             );
-                        })}
+                        })
+                        }
                     </div>
 
                     <div className="flex justify-center gap-2 mt-8">
@@ -63,6 +129,7 @@ export default function Pokemons({ auth, pokemons }) {
                     </div>
 
                 </div>
+            </div>
             </div>
         </AuthenticatedLayout>
     );

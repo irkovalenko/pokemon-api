@@ -17,6 +17,9 @@ class PokemonResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'image_path' => $this->image_path,
+            'type' => $this->type,
+            'if_banned'  => $this->if_banned,
             'abilities' => AbilityResource::collection($this->whenLoaded('abilities')),
 
         ];

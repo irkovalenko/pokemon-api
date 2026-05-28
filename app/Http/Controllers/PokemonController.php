@@ -22,6 +22,9 @@ class PokemonController extends Controller
         $limit = 15;
         $offset = ($page - 1) * $limit;
 
+        $type = $request->get('type');
+        $name = $request->get('name');
+
         $response = Http::get('https://pokeapi.co/api/v2/pokemon', [
             'limit' => $limit,
             'offset' => $offset,
@@ -29,8 +32,74 @@ class PokemonController extends Controller
 
         $data = $response->json();
 
+        $additionalInfo = Http::pool(
+            fn($pool) =>
+            collect($data['results'])->map(
+                fn($pokemon) =>
+                $pool->get($pokemon['url'])
+            )->toArray()
+        );
+
+        $pokemons = collect($additionalInfo)->map(fn($res) => [
+            'name' => $res->json('name'),
+            'type' => $res->json('types')[0]['type']['name'],
+            'image_path' => $res->json('sprites.other.official-artwork.front_default'),
+        ])->values();
+
+        $mergeDbData = function ($pokemons) {
+            $dbPokemons = Pokemon::whereIn('name', $pokemons->pluck('name'))->get()->keyBy('name');
+            return $pokemons->map(fn($p) => [
+                ...$p,
+                'id'        => $dbPokemons->get($p['name'])?->id,
+                'if_banned' => $dbPokemons->get($p['name'])?->if_banned ?? 0,
+            ])->values();
+        };
+
+        $pokemons = $mergeDbData($pokemons);
+
+        if ($type) {
+            $pokemons = $pokemons->filter(fn($p) => $p['type'] === $type)->values();
+        }
+
+        if ($name) {
+            // Fetch all pokemon names (PokeAPI has 1350+ pokemon)
+            $allResponse = Http::get('https://pokeapi.co/api/v2/pokemon', [
+                'limit' => 10000,
+            ]);
+
+            $allNames = collect($allResponse->json()['results'])
+                ->pluck('name')
+                ->filter(fn($n) => str_contains($n, strtolower($name))) // ✅ partial match
+                ->values();
+
+            // Fetch details for matched names in parallel
+            $additionalInfo = Http::pool(
+                fn($pool) => $allNames->take(15)->map(
+                    fn($pokemonName) =>
+                    $pool->get("https://pokeapi.co/api/v2/pokemon/{$pokemonName}")
+                )->toArray()
+            );
+
+            $pokemons = collect($additionalInfo)->map(fn($res) => [
+                'name' => $res->json('name'),
+                'type' => $res->json('types')[0]['type']['name'],
+                'image_path' => $res->json('sprites.other.official-artwork.front_default'),
+            ])->values();
+
+
+            return Inertia::render('Pokemons/Index', [
+                'pokemons' => new LengthAwarePaginator(
+                    $pokemons,
+                    $allNames->count(),
+                    $limit,
+                    $page,
+                    ['path' => request()->url()]
+                ),
+            ]);
+        }
+
         $paginator = new LengthAwarePaginator(
-            $data['results'],
+            $pokemons,
             $data['count'],
             $limit,
             $page,
@@ -48,14 +117,18 @@ class PokemonController extends Controller
             abort(403);
         }
 
-        $pokemon = Pokemon::with('abilities')->banned()->get();
+        $pokemon = Pokemon::where('if_banned', 1)->get();
+
         return Inertia::render('BannedList', [
             'pokemons' => PokemonResource::collection($pokemon),
         ]);
     }
 
-    public function toggleBan(Pokemon $pokemon)
+    public function toggleBan(Pokemon $pokemon, Request $request)
     {
+        if ($request->user()?->role !== Role::ADMIN) {
+            abort(403);
+        }
         $pokemon->update([
             'if_banned' => ! $pokemon->if_banned
         ]);
@@ -87,12 +160,14 @@ class PokemonController extends Controller
         $response = Http::get("https://pokeapi.co/api/v2/pokemon/{$id}");
         $pokemon = json_decode($response->body(), true);
 
-        $pokemonModel = Pokemon::firstOrCreate(
+        $numericId = $pokemon['id'];
+
+        $pokemonModel = Pokemon::updateOrCreate(
             ['name' => $pokemon['name']],
             [
-                'image_path' => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{$id}.png",
-                'cry' => $pokemon['cries']['latest'],
-                'if_banned' => 0,
+                'type' => $pokemon['types'][0]['type']['name'],
+                'image_path' => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{$numericId}.png",
+                'cry' => $pokemon['cries']['latest']
             ]
         );
 

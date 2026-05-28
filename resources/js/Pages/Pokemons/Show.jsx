@@ -1,7 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router} from '@inertiajs/react';
+import PrimaryButton from '@/Components/PrimaryButton';
+import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
+import { useRef } from 'react'; 
+import { POKEMON_TYPES } from '@/config/pokemonTypes';
 
 export default function Show({ auth, pokemon }) {
+
+    const audioRef = useRef(null);
+    const typeInfo = POKEMON_TYPES[pokemon.type];
 
     return (
         <AuthenticatedLayout
@@ -17,7 +24,9 @@ export default function Show({ auth, pokemon }) {
             <div className="py-12">
               <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
                     <div className="bg-white rounded-lg shadow-md p-8 dark:bg-zinc-900 flex flex-col items-center gap-6">
-                        
+                        <h3 className="self-start px-3 py-1 rounded-full border border-solid border-gray-800  text-gray-700 text-sm">
+                            {pokemon.type} {typeInfo?.icon}
+                            </h3>
                         <img
                             src={pokemon.image_path}
                             alt={pokemon.name}
@@ -31,13 +40,16 @@ export default function Show({ auth, pokemon }) {
                             <span>Status: {pokemon.if_banned ? '🚫 Banned' : '✅ Active'}</span>
                         </div>
                         {pokemon.cry && (
-    <div className="w-full">
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
-            Cry
-        </h2>
-        <audio controls src={pokemon.cry} className="w-full">
-            Your browser does not support audio.
-        </audio>
+    <div>
+        
+       <audio ref={audioRef} src={pokemon.cry}>
+                Your browser does not support audio.
+            </audio>
+        <PrimaryButton onClick={()=> audioRef.current.play()}> 
+            Sound
+            <SpeakerWaveIcon className="w-4 h-4 ml-2" />
+             </PrimaryButton>
+        
     </div>
 )}
 
@@ -49,7 +61,7 @@ export default function Show({ auth, pokemon }) {
                                 {pokemon.abilities.map((ability) => (
                                     <span
                                         key={ability.id}
-                                        className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm capitalize"
+                                        className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm capitalize"
                                     >
                                         {ability.name}
                                     </span>
