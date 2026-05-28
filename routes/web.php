@@ -19,6 +19,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons-dashboard', [PokemonController::class, 'index'])->name('pokemons-dashboard');
     Route::get('/banned', [PokemonController::class, 'banned'])->name('banned');
+    Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
     Route::get('/pokemons/{id}', [PokemonController::class, 'show'])->name('pokemons.show');
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::get('/users/{user}', [UserController::class, 'edit'])
