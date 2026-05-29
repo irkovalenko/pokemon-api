@@ -33,7 +33,7 @@ class Pokemon extends Model
         return $query->where('if_banned', 1);
     }
 
-    public function user()
+    public function users()
     {
         return $this->belongsToMany(User::class);
     }

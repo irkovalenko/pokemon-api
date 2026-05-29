@@ -75,8 +75,12 @@ export default function Pokemons({ auth, pokemons }) {
         className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
     />
  
-    <div className="ml-atuo">
-        <SecondaryButton>
+    <div className="ml-auto">
+        <SecondaryButton 
+        onClick={(e) => {
+        router.visit(route('pokemons.create'));
+        }}
+        >
             Add Pokemon
         </SecondaryButton>
     </div>
@@ -94,7 +98,6 @@ export default function Pokemons({ auth, pokemons }) {
                                     key={pokemon.name}
                                     className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition cursor-pointer dark:bg-zinc-900"
                                     onClick={() => {
-                                         console.log(route('pokemons.show', pokemon.name));
                                         router.visit(route('pokemons.show', pokemon.name))}}
                                 >
                                     {isAdmin && (
