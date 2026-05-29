@@ -1,7 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function BannedPokemons({auth, pokemons}) {
+    const user = usePage().props.auth.user;
+    const isAdmin = user?.role === 'admin';
     return (
         <AuthenticatedLayout
         user={auth.user}
@@ -26,10 +29,7 @@ export default function BannedPokemons({auth, pokemons}) {
                                            Type
                                        </th>
                                        <th scope="col" className="px-6 py-3 font-medium">
-                                           Banned_on
-                                       </th>
-                                       <th scope="col" className="px-6 py-3 font-medium">
-                                           Make visible
+                                           Action
                                        </th>
                                    </tr>
                                </thead>
@@ -50,6 +50,20 @@ export default function BannedPokemons({auth, pokemons}) {
                                             className="px-6 py-4"
                                             >
                                                 {pokemon.type}
+                                            </td>
+                                            <td className ="px-6 py-4"
+                                            >
+                                                {isAdmin && (
+                                                                                <PrimaryButton onClick={(e) => {
+                                                                                   e.stopPropagation();
+                                                                                router.post(route('pokemons.toggleBan', pokemon.id));
+                                           }
+                                                                                }>
+                                                                                   {pokemon.if_banned  ? '🚫 banned' : '✅ active'}
+                                                                                   </PrimaryButton>
+                                                                             
+                                                                               )
+                                                                           }
                                             </td>
                                                                                 </tr>
                                                                                   )

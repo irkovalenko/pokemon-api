@@ -28,6 +28,7 @@ class PokemonController extends Controller
         $pokemons = Pokemon::query()
             ->when($type, fn($q) => $q->where('type', $type))
             ->when($name, fn($q) => $q->where('name', 'like', "%{$name}%"))
+            ->where('if_banned', 0)
             ->paginate($limit);
 
         return Inertia::render('Pokemons/Index', [
@@ -65,7 +66,7 @@ class PokemonController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Pokemons/Create');
     }
 
     /**
@@ -73,7 +74,34 @@ class PokemonController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name'       => 'required|string|unique:pokemons,name',
+            'type'       => 'required|string',
+            'abilities'  => 'required|array',
+            'abilities.*' => 'string',
+            'image_path' => 'nullable|string',
+            'cry' => 'nullable|string',
+        ]);
+
+        $pokemon = Pokemon::create([
+            'id'   => Pokemon::max('id') + 1, //disabled auto-increment
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+            'image_path' => $validated['image_path'] ?? null,
+            'cry' => $validated['cry'] ?? null,
+            'if_banned' => 0,
+        ]);
+
+        //abilities table
+        foreach ($validated['abilities'] as $abilityName) {
+            $ability = Ability::firstOrCreate(['name' => $abilityName]);
+            $pokemon->abilities()->syncWithoutDetaching($ability->id);
+        }
+
+        // pokemon_user table
+        $pokemon->users()->attach($request->user()->id);
+
+        return redirect()->route('pokemons.show', $pokemon->name);
     }
 
     /**
