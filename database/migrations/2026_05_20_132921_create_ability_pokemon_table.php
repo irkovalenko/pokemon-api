@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('ability_pokemon', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->unsignedBigInteger('pokemon_id');
+            $table->unsignedInteger('pokemon_id');
             $table->unsignedBigInteger('ability_id');
-
             $table->foreign('pokemon_id')->references('id')->on('pokemons');
             $table->foreign('ability_id')->references('id')->on('abilities');
         });

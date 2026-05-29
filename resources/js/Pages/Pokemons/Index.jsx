@@ -3,13 +3,14 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 
 export default function Pokemons({ auth, pokemons }) {
     const user = usePage().props.auth.user;
     const isAdmin = user?.role === 'admin';
     const handlePageChange = (url) => {
-        if (url) router.visit(url);
+        if (url) router.visit(url, { preserveState: true});
     }
 
 
@@ -38,7 +39,7 @@ export default function Pokemons({ auth, pokemons }) {
         >
             <Head title="Pokemons" />
             <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-<div className = "py-6">
+<div className = "py-6 flex items-center gap-4">
             <Dropdown>
     <Dropdown.Trigger>
         <button className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white">
@@ -66,13 +67,18 @@ export default function Pokemons({ auth, pokemons }) {
         ))}
     </Dropdown.Content>
 </Dropdown>
-<div className="mt-2">
+
  <input
         type="text"
         placeholder="Search by name..."
         onChange={(e) => handleNameFilter(e.target.value)}
         className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
     />
+ 
+    <div className="ml-atuo">
+        <SecondaryButton>
+            Add Pokemon
+        </SecondaryButton>
     </div>
 </div>
 
@@ -81,13 +87,15 @@ export default function Pokemons({ auth, pokemons }) {
                     <div className="grid gap-6 lg:grid-cols-4">
                         {pokemons.data.map((pokemon) => {
                             const typeInfo = POKEMON_TYPES[pokemon.type];
-                            console.log(pokemon.id, pokemon.name);
+                            console.log(pokemons)
                             
                             return(
                                 <div
                                     key={pokemon.name}
                                     className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition cursor-pointer dark:bg-zinc-900"
-                                    onClick={() => router.visit(route('pokemons.show', pokemon.name))}
+                                    onClick={() => {
+                                         console.log(route('pokemons.show', pokemon.name));
+                                        router.visit(route('pokemons.show', pokemon.name))}}
                                 >
                                     {isAdmin && (
                                     <div className ="self-start">
@@ -117,7 +125,7 @@ export default function Pokemons({ auth, pokemons }) {
                     </div>
 
                     <div className="flex justify-center gap-2 mt-8">
-                        {pokemons.links.map((link, id) => (
+                        {pokemons.meta.links.map((link, id) => (
                             <button
                                 key={id}
                                 onClick={() => handlePageChange(link.url)}
