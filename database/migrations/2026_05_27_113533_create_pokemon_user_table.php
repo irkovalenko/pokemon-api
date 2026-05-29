@@ -13,16 +13,9 @@ return new class extends Migration
     {
         Schema::create('pokemon_user', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('user_id')
-                ->constrained()
-                ->onDelete('cascade');
-
-            $table->foreignId('pokemon_id')
-                ->constrained('pokemons')
-                ->onDelete('cascade');
-
-            $table->timestamps();
+            $table->unsignedInteger('pokemon_id');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreign('pokemon_id')->references('id')->on('pokemons')->onDelete('cascade');
         });
     }
 

@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Pokemon extends Model
 {
     protected $table = 'pokemons';
+    public $incrementing = false;
+    protected $keyType = 'int';
     protected $fillable = [
+        'id',
         'name',
         'type',
         'image_path',

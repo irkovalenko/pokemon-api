@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PokemonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Services\PokemonService;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,7 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons-dashboard', [PokemonController::class, 'index'])->name('pokemons-dashboard');
     Route::get('/banned', [PokemonController::class, 'banned'])->name('banned');
     Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
-    Route::get('/pokemons/{id}', [PokemonController::class, 'show'])->name('pokemons.show');
+    Route::get('/pokemons/{name}', [PokemonController::class, 'show'])->name('pokemons.show');
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::get('/users/{user}', [UserController::class, 'edit'])
         ->name('users.edit');
