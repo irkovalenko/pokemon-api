@@ -7,6 +7,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 
 export default function Pokemons({ auth, pokemons }) {
+    const {flash} = usePage().props;
     const user = usePage().props.auth.user;
     const isAdmin = user?.role === 'admin';
     const handlePageChange = (url) => {
@@ -38,6 +39,11 @@ export default function Pokemons({ auth, pokemons }) {
             }
         >
             <Head title="Pokemons" />
+            {flash.message && (
+                <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-4">
+                    {flash.message}
+                </div>
+            )}
             <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
 <div className = "py-6 flex items-center gap-4">
             <Dropdown>

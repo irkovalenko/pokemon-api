@@ -4,8 +4,9 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import { useRef } from 'react'; 
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
+import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Show({ auth, pokemon }) {
+export default function Show({ auth, pokemon, canBeDeletedOrUpdated }) {
 
     const { data } = pokemon;
     const audioRef = useRef(null);
@@ -30,6 +31,17 @@ export default function Show({ auth, pokemon }) {
                         <h3 className="self-start px-3 py-1 rounded-full border border-solid border-gray-800  text-gray-700 text-sm">
                             {data.type} {typeInfo?.icon}
                             </h3>
+                            {canBeDeletedOrUpdated && (
+                              <div className="ml-auto">
+                                    <SecondaryButton 
+                                    onClick={(e) => {
+                                    router.visit(route('pokemons.edit', { id: data.id }));
+                                    }}
+                                    >
+                                        Edit Pokemon
+                                    </SecondaryButton>
+                                </div>)
+}
                         <img
                             src={data.image_path}
                             alt={data.name}
