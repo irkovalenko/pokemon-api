@@ -34,10 +34,19 @@ class UserController extends Controller
         ]);
     }
 
+    public function create(Request $request)
+    {
+        if ($request->user()?->role !== Role::ADMIN) {
+            abort(403);
+        }
+
+        return Inertia::render('Users/Create');
+    }
+
 
     public function edit(Request $request, User $user)
     {
-        if ($request->user()?->role !== Role::ADMIN) {
+        if ($request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -50,7 +59,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        if ($request->user()->role !== Role::ADMIN) {
+        if ($request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -63,5 +72,16 @@ class UserController extends Controller
         $user->update($validated);
 
         return to_route('users')->with('success', 'User updated successfully.');
+    }
+
+    public function destroy(User $user)
+    {
+
+        if ($user->isAdmin()) {
+            abort(403);
+        }
+
+        $user->delete();
+        return to_route('users')->with('success', 'User deleted successfully');
     }
 }

@@ -39,7 +39,7 @@ export default function UpdateForm({
                 onChange={(e) => setData(field.name, e.target.value)}
             >
                 {field.options.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option.value}>{option.label}</option>
                 ))}
             </select>
         ) : (

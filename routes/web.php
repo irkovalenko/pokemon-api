@@ -28,9 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/pokemons/{id}', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{id}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
     Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::get('/users/{user}', [UserController::class, 'edit'])
         ->name('users.edit');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.delete');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
