@@ -1,11 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router} from '@inertiajs/react';
+import { Head, router, usePage} from '@inertiajs/react';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Users({auth, users}) {
 
     const handlePageChange=(url) => {
         if(url) router.visit(url);
     }
+   const {flash} = usePage().props;
 
 
     return (
@@ -18,9 +20,24 @@ export default function Users({auth, users}) {
             }
         >
             <Head title="Users" />
+            {flash.message && (
+                <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-4">
+                    {flash.message}
+                </div>
+            )}
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <div className="ml-auto mb-5 flex items-center gap-4">
+                                <PrimaryButton 
+                                onClick={(e) => {
+                                router.visit(route('users.create'));
+                                }}
+                                >
+                                    Add User
+                                </PrimaryButton>
+                            </div>
+                    
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                             
 
