@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
 use App\Models\Ability;
 use App\Models\Pokemon;
 use App\Role;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class PokemonController extends Controller
 {
@@ -18,18 +17,15 @@ class PokemonController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request->get('page', 1);
-        $limit = 15;
-        $offset = ($page - 1) * $limit;
 
-        $type = $request->get('type');
-        $name = $request->get('name');
+        $type = $request->input('type');
+        $name = $request->input('name');
 
         $pokemons = Pokemon::query()
             ->when($type, fn($q) => $q->where('type', $type))
             ->when($name, fn($q) => $q->where('name', 'like', "%{$name}%"))
             ->where('if_banned', 0)
-            ->paginate($limit);
+            ->paginate();
 
         return Inertia::render('Pokemons/Index', [
             'pokemons' => PokemonResource::collection($pokemons),
@@ -38,7 +34,7 @@ class PokemonController extends Controller
 
     public function banned(Request $request)
     {
-        if ($request->user()?->role !== Role::ADMIN) {
+        if ($request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -51,7 +47,7 @@ class PokemonController extends Controller
 
     public function toggleBan(Pokemon $pokemon, Request $request)
     {
-        if ($request->user()?->role !== Role::ADMIN) {
+        if ($request->user()?->isAdmin()) {
             abort(403);
         }
         $pokemon->update([
@@ -72,20 +68,13 @@ class PokemonController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PokemonRequest $request)
     {
-        $validated = $request->validate([
-            'name'       => 'required|string|unique:pokemons,name',
-            'type'       => 'required|string',
-            'abilities'  => 'required|array',
-            'abilities.*' => 'string',
-            'image_path' => 'nullable|string',
-            'cry' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         $pokemon = Pokemon::create([
             'id'   => Pokemon::max('id') + 1, //disabled auto-increment
-            'name' => $validated['name'],
+            'name' => toKebabCase($validated['name']),
             'type' => $validated['type'],
             'image_path' => $validated['image_path'] ?? null,
             'cry' => $validated['cry'] ?? null,
@@ -113,6 +102,7 @@ class PokemonController extends Controller
         $pokemon = Pokemon::with('abilities')->where('name', $name)->firstOrFail();
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
+            'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
         ]);
     }
 
@@ -121,22 +111,59 @@ class PokemonController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $pokemon = Pokemon::with('abilities')->where('id', $id)->firstOrFail();
+        return Inertia::render('Pokemons/Edit', [
+            'pokemon' => new PokemonResource($pokemon),
+            'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PokemonRequest $request, string $id)
     {
-        //
+        $validated = $request->validated();
+
+        $pokemon = Pokemon::where('id', $id)->firstOrFail();
+        if (!$pokemon->canBeDeletedOrUpdated()) {
+            abort(403, 'This pokemon cannot be updated.');
+        }
+        $pokemon->update([
+            'name' => toKebabCase($validated['name']),
+            'type' => $validated['type'],
+            'image_path' => $validated['image_path'] ?? $pokemon->image_path,
+            'cry' => $validated['cry'] ?? $pokemon->cry,
+        ]);
+
+        $abilityIds = collect($validated['abilities'])->map(function ($abilityName) {
+            return Ability::firstOrCreate(['name' => $abilityName])->id;
+        });
+
+        $pokemon->abilities()->sync($abilityIds);
+
+        return redirect()->route('pokemons.show', $pokemon->name);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
-        //
+        $pokemon = Pokemon::where('id', $id)->firstOrFail();
+        $user = $request->user();
+        $ownsPokemon = $user->pokemons()->where('pokemons.id', $id)->exists();
+
+        if (!$user->isAdmin() && !$ownsPokemon) {
+            abort(403);
+        }
+
+        if (!$pokemon->canBeDeletedOrUpdated()) {
+            abort(403, 'This pokemon cannot be deleted.');
+        }
+
+
+        $pokemon->delete();
+        return redirect()->route('pokemons-dashboard')->with('message', 'Pokemon deleted successfully');
     }
 }

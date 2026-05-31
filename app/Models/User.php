@@ -32,7 +32,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function pokemon()
+    public function pokemons()
     {
         return $this->belongsToMany(Pokemon::class);
     }
