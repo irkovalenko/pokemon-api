@@ -16,14 +16,14 @@ export default function Pokemons({ auth, pokemons }) {
 
 
     const handleTypeFilter = (type) => {
-    router.visit(route('pokemons-dashboard'), {
+    router.visit(route('dashboard'), {
         data: { type },
         preserveState: true,
     });
 };
 
   const handleNameFilter = (name) => {
-    router.visit(route('pokemons-dashboard'), {
+    router.visit(route('dashboard'), {
         data: { name },
         preserveState: true,
     });

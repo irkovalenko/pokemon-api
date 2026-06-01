@@ -18,7 +18,9 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/pokemons-dashboard', [PokemonController::class, 'index'])->name('pokemons-dashboard');
+
+    //pokemon routes
+    Route::get('/dashboard', [PokemonController::class, 'index'])->name('dashboard');
     Route::get('/banned', [PokemonController::class, 'banned'])->name('banned');
     Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
     Route::get('/pokemons/create', [PokemonController::class, 'create'])->name('pokemons.create');
@@ -27,12 +29,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons/{id}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
     Route::patch('/pokemons/{id}', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{id}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
+
+    //user routes
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{user}', [UserController::class, 'edit'])
         ->name('users.edit');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.delete');
+
+    //profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

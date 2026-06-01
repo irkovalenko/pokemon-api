@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Role;
@@ -13,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->user()?->role !== Role::ADMIN) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -36,17 +37,33 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        if ($request->user()?->role !== Role::ADMIN) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
 
         return Inertia::render('Users/Create');
     }
 
+    public function store(UserRequest $request)
+    {
+        if (!$request->user()?->isAdmin()) {
+            abort(403);
+        }
+
+        $validated = $request->validated();
+        $validated['name'] = ucfirst($validated['name']); //capitalize name
+        $validated['password'] = bcrypt('changeme123'); //default password
+        User::create($validated);
+
+        //Password::sendResetLink(['email' => $validated['email']]);
+
+        return to_route('users')->with('success', 'User created successfully.');
+    }
+
 
     public function edit(Request $request, User $user)
     {
-        if ($request->user()?->isAdmin()) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -57,30 +74,31 @@ class UserController extends Controller
     }
 
 
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        if ($request->user()?->isAdmin()) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $user->id],
-            'role' => ['required', Rule::enum(Role::class)],
-        ]);
-
+        $validated = $request->validated();
         $user->update($validated);
 
         return to_route('users')->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
-
-        if ($user->isAdmin()) {
-            abort(403);
+        if (!$request->user()?->isAdmin()) {
+            abort(403, 'You don\'t have permission to delete users.');
         }
 
+        if ($user->isAdmin()) {
+            abort(403, 'Cannot delete an admin.');
+        }
+
+        if ($user->pokemons()->exists()) {
+            abort(403, 'Cannot delete a user who has pokémons.');
+        }
         $user->delete();
         return to_route('users')->with('success', 'User deleted successfully');
     }
