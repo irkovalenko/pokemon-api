@@ -28,6 +28,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'nullable',
             'role' => Role::class,
         ];
     }
@@ -39,6 +40,6 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === Role::ADMIN->value;
+        return $this->role === Role::ADMIN;
     }
 }

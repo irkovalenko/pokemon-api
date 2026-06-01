@@ -34,7 +34,7 @@ class PokemonController extends Controller
 
     public function banned(Request $request)
     {
-        if ($request->user()?->isAdmin()) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -47,7 +47,7 @@ class PokemonController extends Controller
 
     public function toggleBan(Pokemon $pokemon, Request $request)
     {
-        if ($request->user()?->isAdmin()) {
+        if (!$request->user()?->isAdmin()) {
             abort(403);
         }
         $pokemon->update([

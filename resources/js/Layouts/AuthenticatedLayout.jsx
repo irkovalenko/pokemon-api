@@ -26,10 +26,10 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
-                                    href={route('pokemons-dashboard')}
-                                    active={route().current('pokemons-dashboard')}
+                                    href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                 >
-                                    Pokemons' Dashboard
+                                    Dashboard
                                 </NavLink>
                                 {isAdmin && (
                                     <>
@@ -146,8 +146,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('pokemons-dashboard')}
-                            active={route().current('pokemons-dashboard')}
+                            href={route('dashboard')}
+                            active={route().current('ashboard')}
                         >
                             Pokemons' Dashboard
                         </ResponsiveNavLink>

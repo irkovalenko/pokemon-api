@@ -4,11 +4,13 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Transition } from '@headlessui/react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 
 export default function UpdateForm({
+    cancelRoute,
     fields,
     routeName,
+    method = 'patch',
     routeParams,
     className = '',
 }) {
@@ -17,12 +19,16 @@ export default function UpdateForm({
         return acc;
     }, {});
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, patch, post, errors, processing, recentlySuccessful } =
         useForm(initialData);
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route(routeName, routeParams));
+        if (method === 'post') {
+            post(route(routeName, routeParams));
+        } else {
+            patch(route(routeName, routeParams));
+        }
     };
 
     return (
@@ -39,7 +45,7 @@ export default function UpdateForm({
                 onChange={(e) => setData(field.name, e.target.value)}
             >
                 {field.options.map((option) => (
-                    <option key={option} value={option.value}>{option.label}</option>
+                    <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
             </select>
         ) : (
@@ -58,6 +64,9 @@ export default function UpdateForm({
 
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                    <PrimaryButton type="button" onClick={() => router.visit(route(cancelRoute))}>
+                        Cancel
+                    </PrimaryButton>
                     <Transition show={recentlySuccessful} enter="transition ease-in-out" enterFrom="opacity-0" leave="transition ease-in-out" leaveTo="opacity-0">
                         <p className="text-sm text-gray-600">Saved.</p>
                     </Transition>
