@@ -33,13 +33,13 @@ class Pokemon extends Model
         return $query->where('if_banned', 1);
     }
 
-    public function users()
+    public function user()
     {
         return $this->belongsToMany(User::class);
     }
 
     public function canBeDeletedOrUpdated(): bool //only the records in pokemon_user
     {
-        return $this->users()->exists();
+        return $this->user()->exists();
     }
 }

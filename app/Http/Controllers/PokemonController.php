@@ -8,6 +8,7 @@ use App\Models\Ability;
 use App\Models\Pokemon;
 use App\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class PokemonController extends Controller
@@ -20,11 +21,14 @@ class PokemonController extends Controller
 
         $type = $request->input('type');
         $name = $request->input('name');
+        $user = $request->input('user');
 
         $pokemons = Pokemon::query()
             ->when($type, fn($q) => $q->where('type', $type))
             ->when($name, fn($q) => $q->where('name', 'like', "%{$name}%"))
+            ->when($user, fn($q) => $q->whereHas('user', fn($q) => $q->where('name', 'like', "%{$user}%")))
             ->where('if_banned', 0)
+            ->with('user')
             ->paginate();
 
         return Inertia::render('Pokemons/Index', [
@@ -39,6 +43,7 @@ class PokemonController extends Controller
         }
 
         $pokemon = Pokemon::where('if_banned', 1)->get();
+
 
         return Inertia::render('BannedList', [
             'pokemons' => PokemonResource::collection($pokemon),
@@ -72,34 +77,47 @@ class PokemonController extends Controller
     {
         $validated = $request->validated();
 
+        $imagePath = null;
+        $cryPath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images/pokemon', 'public');
+        }
+
+        if ($request->hasFile('cry')) {
+            $cryPath = $request->file('cry')->store('cries', 'public');
+        }
+
         $pokemon = Pokemon::create([
-            'id'   => Pokemon::max('id') + 1, //disabled auto-increment
+            'id'   => Pokemon::max('id') + 1,
             'name' => toKebabCase($validated['name']),
             'type' => $validated['type'],
-            'image_path' => $validated['image_path'] ?? null,
-            'cry' => $validated['cry'] ?? null,
+            'image_path' => $imagePath,
+            'cry' => $cryPath,
             'if_banned' => 0,
         ]);
 
+        $abilities = json_decode($validated['abilities'], true);
+
         //abilities table
-        foreach ($validated['abilities'] as $abilityName) {
+        foreach ($abilities as $abilityName) {
             $ability = Ability::firstOrCreate(['name' => $abilityName]);
             $pokemon->abilities()->syncWithoutDetaching($ability->id);
         }
 
         // pokemon_user table
-        $pokemon->users()->attach($request->user()->id);
+        $pokemon->user()->attach($request->user()->id);
 
-        return redirect()->route('pokemons.show', $pokemon->name);
+        return redirect()->route('pokemons.show', $pokemon->id);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $name)
+    public function show(string $id)
     {
 
-        $pokemon = Pokemon::with('abilities')->where('name', $name)->firstOrFail();
+        $pokemon = Pokemon::with(['abilities', 'user'])->where('id', $id)->firstOrFail();
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
@@ -125,6 +143,17 @@ class PokemonController extends Controller
     {
         $validated = $request->validated();
 
+        $imagePath = null;
+        $cryPath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images/pokemon', 'public');
+        }
+
+        if ($request->hasFile('cry')) {
+            $cryPath = $request->file('cry')->store('cries', 'public');
+        }
+
         $pokemon = Pokemon::where('id', $id)->firstOrFail();
         if (!$pokemon->canBeDeletedOrUpdated()) {
             abort(403, 'This pokemon cannot be updated.');
@@ -132,17 +161,19 @@ class PokemonController extends Controller
         $pokemon->update([
             'name' => toKebabCase($validated['name']),
             'type' => $validated['type'],
-            'image_path' => $validated['image_path'] ?? $pokemon->image_path,
-            'cry' => $validated['cry'] ?? $pokemon->cry,
+            'image_path' => $imagePath ?? $pokemon->image_path,
+            'cry' => $cryPath ?? $pokemon->cry,
         ]);
 
-        $abilityIds = collect($validated['abilities'])->map(function ($abilityName) {
+        $abilities = json_decode($validated['abilities'], true);
+
+        $abilityIds = collect($abilities)->map(function ($abilityName) {
             return Ability::firstOrCreate(['name' => $abilityName])->id;
         });
 
         $pokemon->abilities()->sync($abilityIds);
 
-        return redirect()->route('pokemons.show', $pokemon->name);
+        return redirect()->route('pokemons.show', $pokemon->id);
     }
 
     /**
@@ -162,8 +193,16 @@ class PokemonController extends Controller
             abort(403, 'This pokemon cannot be deleted.');
         }
 
+        if ($pokemon->image_path) {
+            Storage::disk('public')->delete($pokemon->image_path);
+        }
+
+        if ($pokemon->cry) {
+            Storage::disk('public')->delete($pokemon->cry);
+        }
+
 
         $pokemon->delete();
-        return redirect()->route('pokemons-dashboard')->with('message', 'Pokemon deleted successfully');
+        return redirect()->route('dashboard')->with('message', 'Pokemon deleted successfully');
     }
 }

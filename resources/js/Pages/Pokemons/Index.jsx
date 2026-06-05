@@ -6,10 +6,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
 
-export default function Pokemons({ auth, pokemons }) {
+export default function Pokemons({ auth, pokemons}) {
     const {flash} = usePage().props;
-    const user = usePage().props.auth.user;
-    const isAdmin = user?.role === 'admin';
+    const currentUser = usePage().props.auth.user;
+    const isAdmin = currentUser?.role === 'admin';
     const handlePageChange = (url) => {
         if (url) router.visit(url, { preserveState: true});
     }
@@ -29,9 +29,16 @@ export default function Pokemons({ auth, pokemons }) {
     });
 };
 
+
+ const handleUserFilter = (user) => {
+    router.visit(route('dashboard'), {
+        data: { user },
+        preserveState: true,
+    });
+};
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            currentUser={auth.currentUser}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Pokemons
@@ -80,6 +87,13 @@ export default function Pokemons({ auth, pokemons }) {
         onChange={(e) => handleNameFilter(e.target.value)}
         className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
     />
+
+     <input
+        type="text"
+        placeholder="Search by user..."
+        onChange={(e) => handleUserFilter(e.target.value)}
+        className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
+    />
  
     <div className="ml-auto">
         <SecondaryButton 
@@ -97,17 +111,16 @@ export default function Pokemons({ auth, pokemons }) {
                     <div className="grid gap-6 lg:grid-cols-4">
                         {pokemons.data.map((pokemon) => {
                             const typeInfo = POKEMON_TYPES[pokemon.type];
-                            console.log(pokemons)
                             
                             return(
                                 <div
                                     key={pokemon.name}
                                     className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition cursor-pointer dark:bg-zinc-900"
                                     onClick={() => {
-                                        router.visit(route('pokemons.show', pokemon.name))}}
+                                        router.visit(route('pokemons.show', pokemon.id))}}
                                 >
                                     {isAdmin && (
-                                    <div className ="self-start">
+                                    <div className ="self-start flex">
                                      <PrimaryButton onClick={(e) => {
                                         e.stopPropagation();
                                      router.post(route('pokemons.toggleBan', pokemon.id));

@@ -4,11 +4,15 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Support\Facades\DB;
 
 class PokemonRequest extends FormRequest
 {
     public function authorize(): bool
     {
+
         $user = $this->user();
 
         // store
@@ -36,13 +40,19 @@ class PokemonRequest extends FormRequest
             'name'        => [
                 'required',
                 'string',
-                $id ? "unique:pokemons,name,{$id}" : 'unique:pokemons,name',
             ],
             'type'        => 'required|string',
-            'abilities'   => 'required|array',
-            'abilities.*' => 'string',
-            'image_path'  => 'nullable|string',
-            'cry'         => 'nullable|string',
+            'abilities'   => 'required|string',
+            'cry'   => ['nullable', function ($attribute, $value, $fail) {
+                if ($value && !in_array($value->getClientOriginalExtension(), ['ogg', 'mp3'])) {
+                    $fail('The cry must be an mp3 or ogg file.');
+                }
+            }],
+            'image' => ['nullable', function ($attribute, $value, $fail) {
+                if ($value && !in_array($value->getClientOriginalExtension(), ['png', 'jpg', 'jpeg'])) {
+                    $fail('The image must be a png, jpg, or jpeg file.');
+                }
+            }]
         ];
     }
 }
