@@ -25,9 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
     Route::get('/pokemons/create', [PokemonController::class, 'create'])->name('pokemons.create');
     Route::post('/pokemons', [PokemonController::class, 'store'])->name('pokemons.store');
-    Route::get('/pokemons/{name}', [PokemonController::class, 'show'])->name('pokemons.show');
+    Route::get('/pokemons/{id}/show', [PokemonController::class, 'show'])->name('pokemons.show');
     Route::get('/pokemons/{id}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
-    Route::patch('/pokemons/{id}', [PokemonController::class, 'update'])->name('pokemons.update');
+    Route::post('/pokemons/{id}/update', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{id}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
 
     //user routes

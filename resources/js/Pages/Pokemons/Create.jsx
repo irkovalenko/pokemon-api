@@ -28,7 +28,9 @@ export default function Create({ auth }) {
         router.post(route('pokemons.store'), {
         ...values,
         type: selectedType,
-        abilities: abilities,
+        abilities: JSON.stringify(abilities),
+        cry: values.cry?.[0] ?? null,
+        image: values.image?.[0] ?? null,
     });
     };
 
@@ -96,6 +98,31 @@ export default function Create({ auth }) {
     className="px-4 py-2 border rounded-md text-sm w-full"
 />
                             {errors.abilities && <span className="text-red-500 text-sm">{errors.abilities.message}</span>}
+
+
+                <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Cry (mp3, ogg)
+                            </label>
+                            <input
+                                type="file"
+                                accept=".ogg,.mp3"
+                                {...register('cry')}
+                                className="px-4 py-2 border rounded-md text-sm"
+                            />
+                        </div>
+
+                            <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Image (png, jpg, jpeg)
+                            </label>
+                            <input
+                                type="file"
+                                accept=".png,.jpg,.jpeg"
+                                {...register('image')}
+                                className="px-4 py-2 border rounded-md text-sm"
+                            />
+                        </div>
 
                             <button type="submit" className="px-4 py-2 bg-gray-800 text-white rounded-md">
                                 Create

@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Show({ auth, pokemon, canBeDeletedOrUpdated }) {
+export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
     const { data } = pokemon;
     const audioRef = useRef(null);
@@ -16,7 +16,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated }) {
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            currentUser={auth.currentUser}
             header={
                 <h2 className="text-xl capitalize font-semibold leading-tight text-gray-800">
                     {data.name}
@@ -27,12 +27,16 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated }) {
 
             <div className="py-12">
               <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+
                     <div className="bg-white rounded-lg shadow-md p-8 dark:bg-zinc-900 flex flex-col items-center gap-6">
+                        <div className="flex items-center justify-between w-full">
+
                         <h3 className="self-start px-3 py-1 rounded-full border border-solid border-gray-800  text-gray-700 text-sm">
                             {data.type} {typeInfo?.icon}
                             </h3>
+
                             {canBeDeletedOrUpdated && (
-                              <div className="ml-auto">
+                            
                                     <SecondaryButton 
                                     onClick={(e) => {
                                     router.visit(route('pokemons.edit', { id: data.id }));
@@ -40,8 +44,11 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated }) {
                                     >
                                         Edit Pokemon
                                     </SecondaryButton>
-                                </div>)
+                                )
 }
+
+                            </div>
+                            {data.user && <h3>User: {data.user}</h3>}
                         <img
                             src={data.image_path}
                             alt={data.name}
