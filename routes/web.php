@@ -1,11 +1,9 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PokemonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use App\Services\PokemonService;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,6 +27,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons/{id}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
     Route::post('/pokemons/{id}/update', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{id}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
+
+    //comments routes
+    // web.php
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
     //user routes
     Route::get('/users', [UserController::class, 'index'])->name('users');

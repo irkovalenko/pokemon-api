@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Comment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pokemon extends Model
 {
@@ -18,7 +21,7 @@ class Pokemon extends Model
         'if_banned',
     ];
 
-    public function abilities()
+    public function abilities(): BelongsToMany
     {
         return $this->belongsToMany(Ability::class, 'ability_pokemon');
     }
@@ -33,7 +36,7 @@ class Pokemon extends Model
         return $query->where('if_banned', 1);
     }
 
-    public function user()
+    public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
@@ -41,5 +44,10 @@ class Pokemon extends Model
     public function canBeDeletedOrUpdated(): bool //only the records in pokemon_user
     {
         return $this->user()->exists();
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }

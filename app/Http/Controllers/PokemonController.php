@@ -117,7 +117,7 @@ class PokemonController extends Controller
     public function show(string $id)
     {
 
-        $pokemon = Pokemon::with(['abilities', 'user'])->where('id', $id)->firstOrFail();
+        $pokemon = Pokemon::with(['abilities', 'user', 'comments.user'])->where('id', $id)->firstOrFail();
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
