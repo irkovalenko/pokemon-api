@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import SecondaryButton from '@/Components/SecondaryButton';
 import CommentBox from '@/Components/CommentBox';
+import CommentItem from '@/Components/CommentItem';
 
 export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
@@ -103,50 +104,34 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
     )}
 
     <div className="flex flex-col gap-3">
-        {data.comments.map((comment, index) => (
-            <div key={index} className="border rounded-md p-3 text-sm text-gray-700 dark:text-gray-300">
-                <div className="flex justify-between mb-1">
-                    <span className="font-medium">{comment.author}</span>
-                    <span className="text-gray-400 text-xs">{comment.date}</span>
-                </div>
-      {editingId === comment.id ? (
-            <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && editContent.trim()) {
-                        e.preventDefault();
-                        router.patch(route('comments.update', { comment: comment.id }), {
-                            content: editContent.trim(),
-                            pokemon_id: data.id,
-                        }, {
-                            preserveScroll: true,
-                            onSuccess: () => setEditingId(null),
-                        });
-                    }
-                    if (e.key === 'Escape') setEditingId(null);
-                }}
-                rows={3}
-                className="w-full px-3 py-2 border rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
-            />
-        ) : (
-            <p>{comment.content}</p>
-        )}
+        {data.comments.map((comment) => (
+            <div key={comment.id}>
+            <CommentItem
+            key={comment.id}
+            comment={comment}
+            pokemonId={data.id}
+            editingId={editingId}
+            setEditingId={setEditingId}
+            editContent={editContent}
+            setEditContent={setEditContent}
 
-        <div className="flex gap-2 mt-2">
-            {editingId === comment.id ? (
-                <button onClick={() => setEditingId(null)} className="text-xs text-gray-500 hover:text-gray-700">Cancel</button>
-            ) : (
-                <button onClick={() => { setEditingId(comment.id); setEditContent(comment.content); }} className="text-xs text-gray-500 hover:text-gray-700">Edit</button>
-            )}
-            <button
-                onClick={() => router.delete(route('comments.destroy', { comment: comment.id }), { preserveScroll: true })}
-                className="text-xs text-red-500 hover:text-red-700"
-            >
-                Delete
-            </button>
+            />
+            {comment.replies?.length > 0 && (
+            <div className="ml-6 mt-2 flex flex-col gap-2 border-l-2 border-gray-200 pl-3">
+                {comment.replies.map((reply) => (
+                    <CommentItem
+                        key={reply.id}
+                        comment={reply}
+                        pokemonId={data.id}
+                        editingId={editingId}
+                        setEditingId={setEditingId}
+                        editContent={editContent}
+                        setEditContent={setEditContent}
+                    />
+                ))}
             </div>
-            </div>
+        )}
+        </div>
         ))}
     </div>
 </div>

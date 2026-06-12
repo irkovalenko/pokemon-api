@@ -34,6 +34,11 @@ class CommentRequest extends FormRequest
                 'max:1000',
                 'string'
             ],
+
+            'parent_id' => [
+                'nullable',
+                'exists:comments,id'
+            ]
         ];
     }
 
