@@ -22,7 +22,7 @@ class PokemonService
 
     public function getRecords(int $from, int $to): array
     {
-        $responses = Http::pool(
+        $responses = Http::pool( //pool fetches multiple pokemons at the time, not one by one
             fn($pool) => collect(range($from, $to))
                 ->map(fn($id) => $pool->get("https://pokeapi.co/api/v2/pokemon/{$id}/"))
                 ->toArray()
