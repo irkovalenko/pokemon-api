@@ -18,6 +18,7 @@ class CommentController extends Controller
                 'pokemon_id' => $validated['pokemon_id'],
                 'user_id' => $request->user()->id,
                 'content' => $validated['content'],
+                'parent_id' => $validated['parent_id'] ?? null,
             ]
         );
 
@@ -27,8 +28,8 @@ class CommentController extends Controller
 
     public function update(CommentRequest $request, Comment $comment)
     {
-        $user = request()->user;
-        if ($user !== $comment->user) {
+        $user = request()->user();
+        if ($user->id !== $comment->user->id) {
             abort(403, 'This is not your comment, you can\'t edit it.');
         }
 
@@ -43,8 +44,8 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment)
     {
-        $user = request()->user;
-        if ($user !== $comment->user) {
+        $user = request()->user();
+        if ($user->id !== $comment->user->id) {
             abort(403, 'This is not your comment, you can\'t remove it.');
         }
         $pokemonId = $comment->pokemon_id;
