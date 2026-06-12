@@ -18,13 +18,8 @@ class PokemonResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image_path' => $this->image_path
-                ? (str_starts_with($this->image_path, 'http') ? $this->image_path : Storage::url($this->image_path))
-                : null,
-
-            'cry' => $this->cry
-                ? (str_starts_with($this->cry, 'http') ? $this->cry : Storage::url($this->cry))
-                : null,
+            'image_path' => $this->formatFileUrl($this->image_path),
+            'cry' => $this->formatFileUrl($this->cry),
             'type' => $this->type,
             'if_banned'  => $this->if_banned,
             'abilities' => AbilityResource::collection($this->whenLoaded('abilities')),
@@ -32,5 +27,19 @@ class PokemonResource extends JsonResource
             'user' => $this->whenLoaded('user', fn() => $this->user->first()?->name),
 
         ];
+    }
+
+
+    private function formatFileUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+
+        return Storage::url($path);
     }
 }

@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Role;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -97,7 +95,7 @@ class UserController extends Controller
         }
 
         if ($user->pokemons()->exists()) {
-            abort(403, 'Cannot delete a user who has pokémons.');
+            abort(403, 'Cannot delete a user who has pokemons.');
         }
         $user->delete();
         return to_route('users')->with('success', 'User deleted successfully');
