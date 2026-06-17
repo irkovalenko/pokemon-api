@@ -16,6 +16,13 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState('');
+    const [showFullDescription, setShowFullDescription] = useState(false);
+
+    const fullDescription = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+    const description = showFullDescription 
+        ? fullDescription 
+        : fullDescription.substring(0, 50) + '...';
 
 
     return (
@@ -87,6 +94,16 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="mt-4">
+                                {description}
+                            
+                             <button
+              onClick =  {() => setShowFullDescription((prevState) => !prevState )}
+              className="text-indigo-500 mb-5 hover:text-indigo-600">
+                {showFullDescription ? 'Less' : 'More'}
+              </button>
+                            </div>
                     </div>
 
                     <div className="mt-6">
