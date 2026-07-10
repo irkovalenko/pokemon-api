@@ -22,9 +22,10 @@ class PokemonService
 
     public function getRecords(int $from, int $to): array
     {
+        //first call the https://pokeapi.co/api/v2/pokemon and then call the pool on range which is returned via first call
         $responses = Http::pool( //pool fetches multiple pokemons at the time, not one by one
             fn($pool) => collect(range($from, $to))
-                ->map(fn($id) => $pool->get("https://pokeapi.co/api/v2/pokemon/{$id}/"))
+                ->map(fn($id) => $pool->get("https://pokeapi.co/api/v2/pokemon/{$id}/")) //don not rely on id
                 ->toArray()
         );
 

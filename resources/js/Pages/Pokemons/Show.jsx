@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router} from '@inertiajs/react';
+import { Head, router, usePage} from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import { useRef, useState } from 'react'; 
@@ -10,7 +10,10 @@ import CommentItem from '@/Components/CommentItem';
 
 export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
-    const { data } = pokemon;
+    const { flash } = usePage().props; //for flash messages
+    const { data } = pokemon; // data resource json wraps by default in data
+    const currentUser = auth.user;
+    const isAdmin = currentUser?.role === 'admin';
     const audioRef = useRef(null);
     const typeInfo = POKEMON_TYPES[data.type];
     const [showCommentBox, setShowCommentBox] = useState(false);
@@ -45,11 +48,28 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                                 {data.type} {typeInfo?.icon}
                             </h3>
                             {canBeDeletedOrUpdated && (
-                                <SecondaryButton onClick={() => router.visit(route('pokemons.edit', { id: data.id }))}>
-                                    Edit Pokemon
-                                </SecondaryButton>
+                                <PrimaryButton onClick={() => router.visit(route('datas.edit', { id: data.id }))}>
+                                    Edit data
+                                </PrimaryButton>
                             )}
+
+                             {isAdmin && !data.if_banned && (
+                                    <PrimaryButton onClick={(e) => {
+                                    router.post(route('pokemons.toggleBan', data.id));
+                                                                      }
+                                    }>
+                                🚫 hide pokemon
+                                </PrimaryButton>
+                                                                                                        
+                                )
+                            }
                         </div>
+
+                        {flash?.message && (
+    <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
+        {flash.message}
+    </div>
+)}
 
                         {data.user && <h3>User: {data.user}</h3>}
 
@@ -116,7 +136,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
     {showCommentBox && (
         <div className="mb-4">
-            <CommentBox pokemonId={data.id} onSubmitted={() => setShowCommentBox(false)} />
+            <CommentBox dataId={data.id} onSubmitted={() => setShowCommentBox(false)} />
         </div>
     )}
 
@@ -126,7 +146,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
             <CommentItem
             key={comment.id}
             comment={comment}
-            pokemonId={data.id}
+            dataId={data.id}
             editingId={editingId}
             setEditingId={setEditingId}
             editContent={editContent}
@@ -139,7 +159,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                     <CommentItem
                         key={reply.id}
                         comment={reply}
-                        pokemonId={data.id}
+                        dataId={data.id}
                         editingId={editingId}
                         setEditingId={setEditingId}
                         editContent={editContent}

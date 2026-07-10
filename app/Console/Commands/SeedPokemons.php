@@ -23,18 +23,19 @@ class SeedPokemons extends Command
 
         foreach ($pokemons as $pokemon) {
             $pokemonModel = Pokemon::updateOrCreate(
-                ['id' => $pokemon['id']],
+                ['name'       => $pokemon['name'],],
                 [
-                    'name'       => $pokemon['name'],
                     'type'       => $pokemon['type'],
                     'image_path' => $pokemon['image_path'],
                     'cry'        => $pokemon['cry'],
                 ]
             );
 
+            /* database default if_banned = 0, so no need to set it here
             if ($pokemonModel->wasRecentlyCreated) { // exisiting banned are not overwritten
                 $pokemonModel->update(['if_banned' => 0]);
             }
+                */
 
             foreach ($pokemon['abilities'] as $abilityName) {
                 $ability = Ability::firstOrCreate(['name' => $abilityName]);

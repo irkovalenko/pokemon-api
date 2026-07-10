@@ -56,7 +56,10 @@ class PokemonController extends Controller
             'if_banned' => ! $pokemon->if_banned
         ]);
 
-        return back();
+        return back()->with(
+            'message',
+            $pokemon->if_banned ? 'Pokemon hidden successfully!' : 'Pokemon unhidden successfully!'
+        );
     }
 
 
