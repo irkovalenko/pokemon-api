@@ -3,6 +3,8 @@ import { Head, router, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function BannedPokemons({auth, pokemons}) {
+
+    const {flash} = usePage().props;
     const user = usePage().props.auth.user;
     const isAdmin = user?.role === 'admin';
     return (
@@ -17,6 +19,11 @@ export default function BannedPokemons({auth, pokemons}) {
             <Head title="Banned pokemons" />
 
             <div className="py-12">
+                              {flash?.message && (
+                    <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
+                        {flash.message}
+                    </div>
+                )}
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <table>
