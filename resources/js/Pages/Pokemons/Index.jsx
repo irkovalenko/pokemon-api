@@ -117,13 +117,13 @@ export default function Pokemons({ auth, pokemons}) {
                                     key={pokemon.name}
                                     className="flex flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-md hover:shadow-lg transition cursor-pointer dark:bg-zinc-900"
                                     onClick={() => {
-                                        router.visit(route('pokemons.show', pokemon.id))}}
+                                        router.visit(route('pokemons.show', pokemon.uuid))}}
                                 >
                                     {isAdmin && (
                                     <div className ="self-start flex">
                                      <PrimaryButton onClick={(e) => {
                                         e.stopPropagation();
-                                     router.post(route('pokemons.toggleBan', pokemon.id));
+                                     router.post(route('pokemons.toggleBan', pokemon.uuid));
 }
                                      }>
                                         {pokemon.if_banned  ? '🚫 banned' : '✅ active'}

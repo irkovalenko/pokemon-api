@@ -63,7 +63,7 @@ export default function BannedPokemons({auth, pokemons}) {
                                                 {isAdmin && (
                                                                                 <PrimaryButton onClick={(e) => {
                                                                                    e.stopPropagation();
-                                                                                router.post(route('pokemons.toggleBan', pokemon.id));
+                                                                                router.post(route('pokemons.toggleBan', pokemon.uuid));
                                            }
                                                                                 }>
                                                                                    {pokemon.if_banned  ? '🚫 banned' : '✅ active'}

@@ -3,17 +3,20 @@
 namespace App\Models;
 
 use App\Models\Comment;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pokemon extends Model
 {
+    use HasUuids;
     protected $table = 'pokemons';
-    public $incrementing = false;
-    protected $keyType = 'int';
+    protected $primaryKey = 'uuid';
+    protected $keyType = 'string';
+    public $incrementing = false; //applies to primary key
     protected $fillable = [
-        'id',
+        'api_id',
         'name',
         'type',
         'image_path',
@@ -23,7 +26,7 @@ class Pokemon extends Model
 
     public function abilities(): BelongsToMany
     {
-        return $this->belongsToMany(Ability::class, 'ability_pokemon');
+        return $this->belongsToMany(Ability::class, 'ability_pokemon', 'pokemon_id', 'ability_id', 'uuid');
     }
 
     public function scopeNotBanned($query)
@@ -38,7 +41,7 @@ class Pokemon extends Model
 
     public function user(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'pokemon_user', 'pokemon_id', 'user_id', 'uuid');
     }
 
     public function canBeDeletedOrUpdated(): bool //only the records in pokemon_user
@@ -48,6 +51,6 @@ class Pokemon extends Model
 
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'pokemon_id', 'uuid');
     }
 }

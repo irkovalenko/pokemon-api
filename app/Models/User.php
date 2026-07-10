@@ -31,14 +31,20 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'nullable',
             'role' => Role::class,
         ];
     }
 
     public function pokemons(): BelongsToMany
     {
-        return $this->belongsToMany(Pokemon::class);
+        return $this->belongsToMany(
+            Pokemon::class,
+            'pokemon_user',
+            'user_id',
+            'pokemon_id',
+            'id',
+            'api_id'
+        );
     }
 
     public function isAdmin(): bool

@@ -25,7 +25,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
     };
 
     const onSubmit = (values) => {
-        router.post(route('pokemons.update', pokemon.data.id), {
+        router.post(route('pokemons.update', pokemon.data.uuid), {
             //_method: 'PATCH',
             name: values.name,
             type: selectedType || pokemon.data.type,
@@ -78,7 +78,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
                             {canBeDeletedOrUpdated && (
                                 <PrimaryButton
                                     className="bg-red-500 hover:bg-red-600 ml-auto"
-                                    onClick={() => router.delete(route('pokemons.delete', { id: pokemon.data.id }))}
+                                    onClick={() => router.delete(route('pokemons.delete', { uuid: pokemon.data.uuid }))}
                                 >
                                     Delete Pokemon
                                 </PrimaryButton>

@@ -48,14 +48,14 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                                 {data.type} {typeInfo?.icon}
                             </h3>
                             {canBeDeletedOrUpdated && (
-                                <PrimaryButton onClick={() => router.visit(route('datas.edit', { id: data.id }))}>
+                                <PrimaryButton onClick={() => router.visit(route('pokemons.edit', { uuid: data.uuid }))}>
                                     Edit data
                                 </PrimaryButton>
                             )}
 
                              {isAdmin && !data.if_banned && (
                                     <PrimaryButton onClick={(e) => {
-                                    router.post(route('pokemons.toggleBan', data.id));
+                                    router.post(route('pokemons.toggleBan', data.uuid));
                                                                       }
                                     }>
                                 🚫 hide pokemon
