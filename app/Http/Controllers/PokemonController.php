@@ -85,7 +85,6 @@ class PokemonController extends Controller
         }
 
         $pokemon = Pokemon::create([
-            'id'   => Pokemon::max('id') + 1,
             'name' => toKebabCase($validated['name']),
             'type' => $validated['type'],
             'image_path' => $imagePath,
@@ -104,11 +103,11 @@ class PokemonController extends Controller
         // pokemon_user table
         $pokemon->user()->attach($request->user()->id);
 
-        return redirect()->route('pokemons.show', $pokemon->id);
+        return redirect()->route('pokemons.show', $pokemon->uuid);
     }
 
 
-    public function show(string $id)
+    public function show(string $uuid)
     {
 
         $pokemon = Pokemon::with([
@@ -120,7 +119,7 @@ class PokemonController extends Controller
             'comments.user',
             'comments.replies.user'
         ])
-            ->where('id', $id)->firstOrFail();
+            ->where('uuid', $uuid)->firstOrFail();
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
@@ -128,9 +127,9 @@ class PokemonController extends Controller
     }
 
 
-    public function edit(string $id)
+    public function edit(string $uuid)
     {
-        $pokemon = Pokemon::with('abilities')->where('id', $id)->firstOrFail();
+        $pokemon = Pokemon::with('abilities')->where('uuid', $uuid)->firstOrFail();
         return Inertia::render('Pokemons/Edit', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
@@ -138,7 +137,7 @@ class PokemonController extends Controller
     }
 
 
-    public function update(PokemonRequest $request, string $id)
+    public function update(PokemonRequest $request, string $uuid)
     {
         $validated = $request->validated();
 
@@ -153,7 +152,7 @@ class PokemonController extends Controller
             $cryPath = $request->file('cry')->store('cries', 'public');
         }
 
-        $pokemon = Pokemon::where('id', $id)->firstOrFail();
+        $pokemon = Pokemon::where('uuid', $uuid)->firstOrFail();
         if (!$pokemon->canBeDeletedOrUpdated()) {
             abort(403, 'This pokemon cannot be updated.');
         }
@@ -172,15 +171,15 @@ class PokemonController extends Controller
 
         $pokemon->abilities()->sync($abilityIds);
 
-        return redirect()->route('pokemons.show', $pokemon->id);
+        return redirect()->route('pokemons.show', $pokemon->uuid);
     }
 
 
-    public function destroy(string $id, Request $request)
+    public function destroy(string $uuid, Request $request)
     {
-        $pokemon = Pokemon::where('id', $id)->firstOrFail();
+        $pokemon = Pokemon::where('uuid', $uuid)->firstOrFail();
         $user = $request->user();
-        $ownsPokemon = $user->pokemons()->where('pokemons.id', $id)->exists();
+        $ownsPokemon = $user->pokemons()->where('pokemons.uuid', $uuid)->exists();
 
         if (!$user->isAdmin() && !$ownsPokemon) {
             abort(403);

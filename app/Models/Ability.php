@@ -14,6 +14,6 @@ class Ability extends Model
 
     public function pokemons(): BelongsToMany
     {
-        return $this->belongsToMany(Pokemon::class, 'ability_pokemon');
+        return $this->belongsToMany(Pokemon::class, 'ability_pokemon', 'pokemon_id', 'ability_id', 'uuid', 'ability_id');
     }
 }

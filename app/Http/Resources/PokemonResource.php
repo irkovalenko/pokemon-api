@@ -16,7 +16,7 @@ class PokemonResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'uuid' => $this->uuid,
             'name' => $this->name,
             'image_path' => $this->formatFileUrl($this->image_path),
             'cry' => $this->formatFileUrl($this->cry),

@@ -12,7 +12,7 @@ class Comment extends Model
 
     public function pokemon(): BelongsTo
     {
-        return $this->belongsTo(Pokemon::class);
+        return $this->belongsTo(Pokemon::class, 'comments', 'pokemon_id', 'uuid');
     }
 
     public function user(): BelongsTo
