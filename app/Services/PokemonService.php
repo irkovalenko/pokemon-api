@@ -20,13 +20,21 @@ class PokemonService
         ];
     }
 
-    public function getRecords(int $from, int $to): array
+    public function getRecordsFromListing(int $limit = 20, int $offset = 0): array
     {
-        //first call the https://pokeapi.co/api/v2/pokemon and then call the pool on range which is returned via first call
-        $responses = Http::pool( //pool fetches multiple pokemons at the time, not one by one
-            fn($pool) => collect(range($from, $to))
-                ->map(fn($id) => $pool->get("https://pokeapi.co/api/v2/pokemon/{$id}/")) //don not rely on id
-                ->toArray()
+        $listing = Http::get('https://pokeapi.co/api/v2/pokemon', [
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
+
+        if (!$listing->successful()) {
+            return [];
+        }
+
+        $urls = collect($listing->json('results'))->pluck('url');
+
+        $responses = Http::pool(
+            fn($pool) => $urls->map(fn($url) => $pool->get($url))->toArray()
         );
 
         return collect($responses)

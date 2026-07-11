@@ -44,7 +44,7 @@ export default function BannedPokemons({auth, pokemons}) {
                                 {pokemons?.data?.map((pokemon) =>
                                 (
                                     <tr
-                                                                            key={pokemon.id}
+                                                                            key={pokemon.uuid}
                                                                             className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                                                                             >
                                                                                 <th
