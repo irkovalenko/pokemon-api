@@ -26,7 +26,14 @@ class Pokemon extends Model
 
     public function abilities(): BelongsToMany
     {
-        return $this->belongsToMany(Ability::class, 'ability_pokemon', 'pokemon_id', 'ability_id', 'uuid');
+        return $this->belongsToMany(
+            Ability::class,
+            'ability_pokemon',
+            'pokemon_id',
+            'ability_id',
+            'uuid',
+            'uuid'
+        );
     }
 
     public function scopeNotBanned($query)

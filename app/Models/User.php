@@ -43,7 +43,7 @@ class User extends Authenticatable
             'user_id',
             'pokemon_id',
             'id',
-            'api_id'
+            'uuid'
         );
     }
 
@@ -55,5 +55,10 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function abilities(): HasMany
+    {
+        return $this->hasMany(Ability::class);
     }
 }

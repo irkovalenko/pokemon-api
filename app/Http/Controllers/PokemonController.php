@@ -15,7 +15,6 @@ class PokemonController extends Controller
 
     public function index(Request $request)
     {
-
         $type = $request->input('type');
         $name = $request->input('name');
         $user = $request->input('user');
@@ -41,7 +40,6 @@ class PokemonController extends Controller
 
         $pokemon = Pokemon::where('if_banned', 1)->get();
 
-
         return Inertia::render('BannedList', [
             'pokemons' => PokemonResource::collection($pokemon),
         ]);
@@ -52,7 +50,7 @@ class PokemonController extends Controller
         if (!$request->user()?->isAdmin()) {
             abort(403);
         }
-        $pokemon->update([ //update to the contrary of whatever is in db
+        $pokemon->update([
             'if_banned' => ! $pokemon->if_banned
         ]);
 
@@ -62,12 +60,10 @@ class PokemonController extends Controller
         );
     }
 
-
     public function create()
     {
         return Inertia::render('Pokemons/Create');
     }
-
 
     public function store(PokemonRequest $request)
     {
@@ -92,12 +88,25 @@ class PokemonController extends Controller
             'if_banned' => 0,
         ]);
 
-        $abilities = json_decode($validated['abilities'], true);
+        $abilities = $validated['abilities'];
 
-        //abilities table
-        foreach ($abilities as $abilityName) {
-            $ability = Ability::firstOrCreate(['name' => $abilityName]);
-            $pokemon->abilities()->syncWithoutDetaching($ability->id);
+        foreach ($abilities as $ability) {
+            if (!empty($ability['uuid'])) {
+                // existing ability chosen from dropdown — reuse as is
+                $abilityModel = Ability::where('uuid', $ability['uuid'])->firstOrFail();
+            } else {
+                // brand new ability — record the current user as its creator
+                $abilityModel = Ability::firstOrCreate(
+                    ['name' => $ability['name']],
+                    ['description' => $ability['description'] ?? null]
+                );
+
+                if ($abilityModel->wasRecentlyCreated) {
+                    $abilityModel->creator()->attach($request->user()->id);
+                }
+            }
+
+            $pokemon->abilities()->syncWithoutDetaching($abilityModel->uuid);
         }
 
         // pokemon_user table
@@ -106,12 +115,10 @@ class PokemonController extends Controller
         return redirect()->route('pokemons.show', $pokemon->uuid);
     }
 
-
     public function show(string $uuid)
     {
-
         $pokemon = Pokemon::with([
-            'abilities',
+            'abilities.creator',
             'user',
             'comments' => function ($query) {
                 $query->orderBy('created_at', 'desc');
@@ -120,22 +127,22 @@ class PokemonController extends Controller
             'comments.replies.user'
         ])
             ->where('uuid', $uuid)->firstOrFail();
+
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
         ]);
     }
 
-
     public function edit(string $uuid)
     {
-        $pokemon = Pokemon::with('abilities')->where('uuid', $uuid)->firstOrFail();
+        $pokemon = Pokemon::with('abilities.creator')->where('uuid', $uuid)->firstOrFail();
+
         return Inertia::render('Pokemons/Edit', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
         ]);
     }
-
 
     public function update(PokemonRequest $request, string $uuid)
     {
@@ -163,17 +170,30 @@ class PokemonController extends Controller
             'cry' => $cryPath ?? $pokemon->cry,
         ]);
 
-        $abilities = json_decode($validated['abilities'], true);
+        $abilities = $validated['abilities'];
+        $abilityUuids = [];
 
-        $abilityIds = collect($abilities)->map(function ($abilityName) {
-            return Ability::firstOrCreate(['name' => $abilityName])->id;
-        });
+        foreach ($abilities as $ability) {
+            if (!empty($ability['uuid'])) {
+                $abilityModel = Ability::where('uuid', $ability['uuid'])->firstOrFail();
+            } else {
+                $abilityModel = Ability::firstOrCreate(
+                    ['name' => $ability['name']],
+                    ['description' => $ability['description'] ?? null]
+                );
 
-        $pokemon->abilities()->sync($abilityIds);
+                if ($abilityModel->wasRecentlyCreated) {
+                    $abilityModel->creator()->attach($request->user()->id);
+                }
+            }
+
+            $abilityUuids[] = $abilityModel->uuid;
+        }
+
+        $pokemon->abilities()->sync($abilityUuids);
 
         return redirect()->route('pokemons.show', $pokemon->uuid);
     }
-
 
     public function destroy(string $uuid, Request $request)
     {
@@ -196,7 +216,6 @@ class PokemonController extends Controller
         if ($pokemon->cry) {
             Storage::disk('public')->delete($pokemon->cry);
         }
-
 
         $pokemon->delete();
         return redirect()->route('dashboard')->with('message', 'Pokemon deleted successfully');

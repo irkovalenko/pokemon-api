@@ -2,36 +2,59 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Create({ auth }) {
     const [selectedType, setSelectedType] = useState('');
     const { handleSubmit, register, formState: { errors } } = useForm();
 
-    const [abilities, setAbilities] = useState([]);
+    const [abilities, setAbilities] = useState([]); // [{ name, description, uuid }]
     const [abilityInput, setAbilityInput] = useState('');
+    const [abilityDescInput, setAbilityDescInput] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
 
-    const addAbility = (e) => {
-        if (e.key === 'Enter' && abilityInput.trim()) {
-            e.preventDefault();
-            setAbilities([...abilities, abilityInput.trim()]);
-            setAbilityInput('');
+    useEffect(() => {
+        if (!abilityInput.trim()) {
+            setSuggestions([]);
+            return;
         }
+        const timeout = setTimeout(() => {
+            fetch(route('abilities.search', { query: abilityInput }))
+                .then((res) => res.json())
+                .then(setSuggestions);
+        }, 300);
+        return () => clearTimeout(timeout);
+    }, [abilityInput]);
+
+    const addAbility = (ability) => {
+        setAbilities([...abilities, ability]);
+        setAbilityInput('');
+        setAbilityDescInput('');
+        setSuggestions([]);
     };
 
-        const removeAbility = (index) => {
-            setAbilities(abilities.filter((_, i) => i !== index));
-        };
+   const addNewAbility = () => {
+    if (!abilityInput.trim()) return;
+    addAbility({
+        name: abilityInput.trim(),
+        description: abilityDescInput.trim() || null,
+        uuid: null,
+    });
+};
+
+    const removeAbility = (index) => {
+        setAbilities(abilities.filter((_, i) => i !== index));
+    };
 
     const onSubmit = (values) => {
         router.post(route('pokemons.store'), {
-        ...values,
-        type: selectedType,
-        abilities: JSON.stringify(abilities),
-        cry: values.cry?.[0] ?? null,
-        image: values.image?.[0] ?? null,
-    });
+            ...values,
+            type: selectedType,
+            abilities: JSON.stringify(abilities),
+            cry: values.cry?.[0] ?? null,
+            image: values.image?.[0] ?? null,
+        });
     };
 
     return (
@@ -83,46 +106,86 @@ export default function Create({ auth }) {
                             {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
 
                             <div className="flex flex-wrap gap-2 mb-2">
-    {abilities.map((ability, index) => (
-        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-1">
-            {ability}
-            <button onClick={() => removeAbility(index)}>✕</button>
-        </span>
-    ))}
+                                {abilities.map((ability, index) => (
+                                    <span
+                                        key={ability.uuid ?? `${ability.name}-${index}`}
+                                        title={ability.description ?? undefined}
+                                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-1 capitalize"
+                                    >
+                                        {ability.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeAbility(index)}
+                                            className="text-blue-500 hover:text-blue-700"
+                                        >
+                                            ✕
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+
+                            
+                    <div className="relative">
+    <input
+        value={abilityInput}
+        onChange={(e) => setAbilityInput(e.target.value)}
+        placeholder="Type ability name..."
+        className="px-4 py-2 border rounded-md text-sm w-full"
+    />
+    {suggestions.length > 0 && (
+        <div className="absolute z-10 bg-white border rounded-md w-full mt-1 shadow-md dark:bg-zinc-800">
+            {suggestions.map((s) => (
+                <button
+                    type="button"
+                    key={s.uuid}
+                    onClick={() => addAbility({ name: s.name, description: s.description, uuid: s.uuid })}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 capitalize"
+                >
+                    {s.name}
+                </button>
+            ))}
+        </div>
+    )}
 </div>
+
 <input
-    value={abilityInput}
-    onChange={(e) => setAbilityInput(e.target.value)}
-    onKeyDown={addAbility}
-    placeholder="Type ability and press Enter..."
+    value={abilityDescInput}
+    onChange={(e) => setAbilityDescInput(e.target.value)}
+    placeholder="Description (optional, only used for new abilities)"
     className="px-4 py-2 border rounded-md text-sm w-full"
 />
-                            {errors.abilities && <span className="text-red-500 text-sm">{errors.abilities.message}</span>}
 
-
-                <div className="flex flex-col gap-1">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Cry (mp3, ogg)
-                            </label>
-                            <input
-                                type="file"
-                                accept=".ogg,.mp3"
-                                {...register('cry')}
-                                className="px-4 py-2 border rounded-md text-sm"
-                            />
-                        </div>
+<button
+    type="button"
+    onClick={addNewAbility}
+    className="self-start px-4 py-2 bg-blue-600 text-white rounded-md text-sm"
+>
+    Add ability
+</button>
 
                             <div className="flex flex-col gap-1">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Image (png, jpg, jpeg)
-                            </label>
-                            <input
-                                type="file"
-                                accept=".png,.jpg,.jpeg"
-                                {...register('image')}
-                                className="px-4 py-2 border rounded-md text-sm"
-                            />
-                        </div>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Cry (mp3, ogg)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept=".ogg,.mp3"
+                                    {...register('cry')}
+                                    className="px-4 py-2 border rounded-md text-sm"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Image (png, jpg, jpeg)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept=".png,.jpg,.jpeg"
+                                    {...register('image')}
+                                    className="px-4 py-2 border rounded-md text-sm"
+                                />
+                            </div>
 
                             <button type="submit" className="px-4 py-2 bg-gray-800 text-white rounded-md">
                                 Create

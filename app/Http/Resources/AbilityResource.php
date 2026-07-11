@@ -15,8 +15,11 @@ class AbilityResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'api_id' => $this->api_id,
+            'uuid' => $this->uuid,
             'name' => $this->name,
+            'description' => $this->description,
+            'canEdit' => $this->canBeEditedBy($request->user()),
         ];
     }
 }

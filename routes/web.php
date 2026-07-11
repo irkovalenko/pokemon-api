@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AbilityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PokemonController;
 use App\Http\Controllers\ProfileController;
@@ -27,6 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons/{uuid}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
     Route::post('/pokemons/{uuid}/update', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{uuid}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
+
+    //abilities routes
+    Route::get('/abilities/search', [AbilityController::class, 'searchAbility'])->name('abilities.search');
+    Route::patch('/abilities/{ability}', [AbilityController::class, 'update'])->name('abilities.update');
+
 
     //comments routes
     // web.php

@@ -9,19 +9,29 @@ class PokemonRequest extends FormRequest
 {
     public function authorize(): bool
     {
-
         $user = $this->user();
 
         // store
-        if ($this->isMethod('POST')) {
+        if ($this->isMethod('POST') && $this->routeIs('pokemons.store')) {
             return $user !== null;
         }
 
         // update and delete
-        $id = $this->route('id');
-        $ownsPokemon = $user->pokemons()->where('pokemons.id', $id)->exists();
+        $uuid = $this->route('uuid');
+        $ownsPokemon = $user->pokemons()->where('pokemons.uuid', $uuid)->exists();
 
         return $user->isAdmin() || $ownsPokemon;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('abilities') && is_string($this->abilities)) {
+            $decoded = json_decode($this->abilities, true);
+
+            $this->merge([
+                'abilities' => is_array($decoded) ? $decoded : [],
+            ]);
+        }
     }
 
     /**
@@ -31,21 +41,25 @@ class PokemonRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('id');
-
         return [
-            'name'        => [
-                'required',
-                'string',
-            ],
+            'name'        => ['required', 'string'],
             'type'        => 'required|string',
-            'abilities'   => 'required|string',
-            'cry'   => ['nullable', function ($attribute, $value, $fail) {
+
+            'abilities'                => 'required|array|min:1',
+            'abilities.*.name'         => 'required|string|max:255',
+            'abilities.*.description'  => 'nullable|string',
+            'abilities.*.uuid'         => 'nullable|string|uuid|exists:abilities,uuid',
+
+            'cry'   => ['nullable', function ($_attribute, $value, $fail) {
+                /*    
+            $_attribute means intentionally unused
+            closure function does function ($value, $fail)
+            */
                 if ($value && !in_array($value->getClientOriginalExtension(), ['ogg', 'mp3'])) {
                     $fail('The cry must be an mp3 or ogg file.');
                 }
             }],
-            'image' => ['nullable', function ($attribute, $value, $fail) {
+            'image' => ['nullable', function ($_attribute, $value, $fail) {
                 if ($value && !in_array($value->getClientOriginalExtension(), ['png', 'jpg', 'jpeg'])) {
                     $fail('The image must be a png, jpg, or jpeg file.');
                 }
