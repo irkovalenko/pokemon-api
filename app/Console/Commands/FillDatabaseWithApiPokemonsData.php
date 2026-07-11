@@ -40,9 +40,18 @@ class FillDatabaseWithApiPokemonsData extends Command
                 ]
             );
 
-            foreach ($pokemon['abilities'] as $abilityName) {
-                $ability = Ability::firstOrCreate(['name' => $abilityName]);
-                $pokemonModel->abilities()->syncWithoutDetaching($ability->id);
+            foreach ($pokemon['abilities'] as $ability) {
+                $abilityModel = Ability::firstOrCreate(
+                    ['name' => $ability['name']],
+                    ['description' => $ability['description']]
+                );
+
+                // if the ability already existed without a description, backfill it
+                if (!$abilityModel->description && $ability['description']) {
+                    $abilityModel->update(['description' => $ability['description']]);
+                }
+
+                $pokemonModel->abilities()->syncWithoutDetaching($abilityModel->uuid);
             }
         }
 

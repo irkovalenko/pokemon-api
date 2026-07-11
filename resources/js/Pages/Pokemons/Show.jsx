@@ -104,15 +104,21 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                                 Abilities
                             </h2>
                             <div className="flex flex-wrap gap-2">
-                                {data.abilities.map((ability) => (
-                                    <span
-                                        key={ability.id}
-                                        className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm capitalize"
-                                    >
-                                        {ability.name}
-                                    </span>
-                                ))}
-                            </div>
+    {data.abilities.map((ability) => (
+        <div key={ability.id} className="relative group">
+            <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm capitalize cursor-help">
+                {ability.name}
+            </span>
+
+            {ability.description && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-md bg-gray-900 text-white text-xs px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {ability.description}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                </div>
+            )}
+        </div>
+    ))}
+</div>
                         </div>
 
                         <div className="mt-4">
