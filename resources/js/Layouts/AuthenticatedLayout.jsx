@@ -147,7 +147,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             href={route('dashboard')}
-                            active={route().current('ashboard')}
+                            active={route().current('dashboard')}
                         >
                             Pokemons' Dashboard
                         </ResponsiveNavLink>
@@ -165,6 +165,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         >
                             Users
                         </ResponsiveNavLink>
+
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">

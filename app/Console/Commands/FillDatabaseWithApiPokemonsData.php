@@ -7,35 +7,38 @@ use App\Models\Pokemon;
 use App\Services\PokemonService;
 use Illuminate\Console\Command;
 
-class SeedPokemons extends Command
+class FillDatabaseWithApiPokemonsData extends Command
 {
-    protected $signature = 'pokemons:seed {from=1} {to=100}'; // default from to
-    protected $description = 'Seed pokemons from PokeAPI into the database';
+    protected $signature = 'pokemons:fill {from=1} {to=100} {--fresh : Wipe existing pokemons before seeding}';
+    protected $description = 'Fills the database with the data from PokeAPI';
 
     public function handle(PokemonService $service)
     {
-        $from = $this->argument('from');
-        $to = $this->argument('to');
+        $from = (int) $this->argument('from');
+        $to = (int) $this->argument('to');
+
+        if ($this->option('fresh')) {
+            $this->info('Clearing existing pokemons...');
+            Pokemon::query()->delete();
+        }
 
         $this->info("Seeding pokemons {$from} to {$to}...");
 
-        $pokemons = $service->getRecords($from, $to);
+        $limit = $to - $from + 1;
+        $offset = $from - 1;
+
+        $pokemons = $service->getRecordsFromListing($limit, $offset);
 
         foreach ($pokemons as $pokemon) {
             $pokemonModel = Pokemon::updateOrCreate(
-                ['name'       => $pokemon['name'],],
+                ['api_id' => $pokemon['id']],
                 [
+                    'name'       => $pokemon['name'],
                     'type'       => $pokemon['type'],
                     'image_path' => $pokemon['image_path'],
                     'cry'        => $pokemon['cry'],
                 ]
             );
-
-            /* database default if_banned = 0, so no need to set it here
-            if ($pokemonModel->wasRecentlyCreated) { // exisiting banned are not overwritten
-                $pokemonModel->update(['if_banned' => 0]);
-            }
-                */
 
             foreach ($pokemon['abilities'] as $abilityName) {
                 $ability = Ability::firstOrCreate(['name' => $abilityName]);
