@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import axios from 'axios';
 
 export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
+    const { errors: serverErrors } = usePage().props;
     const [selectedType, setSelectedType] = useState(pokemon.data.type);
     const { handleSubmit, register, formState: { errors } } = useForm();
 
@@ -86,7 +87,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
         const timeout = setTimeout(() => {
             fetch(route('abilities.search', { query: abilityInput }))
                 .then((res) => res.json())
-                .then(setSuggestions);
+                .then((json) => setSuggestions(json.data));
         }, 300);
         return () => clearTimeout(timeout);
     }, [abilityInput]);
@@ -114,6 +115,10 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
     };
 
     const onSubmit = (values) => {
+        if (attachedAbilities.length === 0) {
+            return;
+        }
+
         const abilities = attachedAbilities;
 
         router.post(route('pokemons.update', pokemon.data.uuid), {
@@ -122,7 +127,12 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
             abilities: JSON.stringify(abilities),
             cry: values.cry?.[0] ?? null,
             image: values.image?.[0] ?? null,
-        }, { forceFormData: true });
+        }, {
+            forceFormData: true,
+            onError: (errors) => {
+                console.log('Update failed:', errors);
+            },
+        });
     };
 
     return (
@@ -313,6 +323,14 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
                                 </button>
 
                                 {errors.abilities && <span className="text-red-500 text-sm">{errors.abilities.message}</span>}
+                                {serverErrors.abilities && (
+                                    <span className="text-red-500 text-sm">{serverErrors.abilities}</span>
+                                )}
+                                {attachedAbilities.length === 0 && (
+                                    <span className="text-red-500 text-sm">
+                                        A pokemon must have at least one ability.
+                                    </span>
+                                )}
                             </div>
 
                             <div className="flex flex-col gap-1">
@@ -345,7 +363,11 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated }) {
                                 />
                             </div>
 
-                            <button type="submit" className="px-4 py-2 bg-gray-800 text-white rounded-md">
+                            <button
+                                type="submit"
+                                disabled={attachedAbilities.length === 0}
+                                className="px-4 py-2 bg-gray-800 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 Update
                             </button>
                         </form>

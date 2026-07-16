@@ -60,6 +60,11 @@ class Ability extends Model
             return false;
         }
 
+        // abilities coming from api cannot be edited
+        if ($this->creator->isEmpty()) {
+            return false;
+        }
+
         return $user->isAdmin() || $this->isCreatedBy($user);
     }
 }

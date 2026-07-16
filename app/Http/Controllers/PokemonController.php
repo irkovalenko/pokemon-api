@@ -9,6 +9,7 @@ use App\Models\Pokemon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class PokemonController extends Controller
 {
@@ -189,7 +190,7 @@ class PokemonController extends Controller
 
             $abilityUuids[] = $abilityModel->uuid;
         }
-
+        Log::info('Syncing abilities', ['abilityUuids' => $abilityUuids]);
         $pokemon->abilities()->sync($abilityUuids);
 
         return redirect()->route('pokemons.show', $pokemon->uuid);
