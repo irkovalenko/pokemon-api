@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Abilities\SearchAbilitiesAction;
+use App\Actions\Abilities\SearchAbilitiyAction;
 use App\Actions\Abilities\UpdateAbilityAction;
 use App\DataTransferObjects\Abilities\UpdateAbilityData;
-use App\DataTransferObjects\Abilities\SearchAbilitiesData;
+use App\DataTransferObjects\Abilities\SearchAbilityData;
 use App\Http\Requests\Abilities\UpdateAbilityRequest;
 use App\Http\Resources\AbilityResource;
 use App\Models\Ability;
@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 
 class AbilityController extends Controller
 {
-    public function searchAbility(Request $request, SearchAbilitiesAction $action)
+    public function searchAbility(Request $request, SearchAbilitiyAction $action)
     {
-        $data = SearchAbilitiesData::fromRequest($request);
+        $data = SearchAbilityData::fromRequest($request);
 
         $abilities = $action->execute($data);
 
