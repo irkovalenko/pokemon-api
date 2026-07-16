@@ -45,7 +45,7 @@ class PokemonRequest extends FormRequest
             'name'        => ['required', 'string'],
             'type'        => 'required|string',
 
-            'abilities'                => 'required|array|min:1',
+            'abilities'                => 'required|array',
             'abilities.*.name'         => 'required|string|max:255',
             'abilities.*.description'  => 'nullable|string',
             'abilities.*.uuid'         => 'nullable|string|uuid|exists:abilities,uuid',

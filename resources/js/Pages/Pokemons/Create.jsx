@@ -1,11 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Create({ auth }) {
+    const { errors: serverErrors } = usePage().props;
     const [selectedType, setSelectedType] = useState('');
     const { handleSubmit, register, formState: { errors } } = useForm();
 
@@ -22,7 +23,7 @@ export default function Create({ auth }) {
         const timeout = setTimeout(() => {
             fetch(route('abilities.search', { query: abilityInput }))
                 .then((res) => res.json())
-                .then(setSuggestions);
+                .then((json) => setSuggestions(json.data));
         }, 300);
         return () => clearTimeout(timeout);
     }, [abilityInput]);
@@ -34,26 +35,34 @@ export default function Create({ auth }) {
         setSuggestions([]);
     };
 
-   const addNewAbility = () => {
-    if (!abilityInput.trim()) return;
-    addAbility({
-        name: abilityInput.trim(),
-        description: abilityDescInput.trim() || null,
-        uuid: null,
-    });
-};
+    const addNewAbility = () => {
+        if (!abilityInput.trim()) return;
+        addAbility({
+            name: abilityInput.trim(),
+            description: abilityDescInput.trim() || null,
+            uuid: null,
+        });
+    };
 
     const removeAbility = (index) => {
         setAbilities(abilities.filter((_, i) => i !== index));
     };
 
     const onSubmit = (values) => {
+        if (abilities.length === 0) {
+            return;
+        }
+
         router.post(route('pokemons.store'), {
             ...values,
             type: selectedType,
             abilities: JSON.stringify(abilities),
             cry: values.cry?.[0] ?? null,
             image: values.image?.[0] ?? null,
+        }, {
+            onError: (errors) => {
+                console.log('Create failed:', errors);
+            },
         });
     };
 
@@ -124,44 +133,52 @@ export default function Create({ auth }) {
                                 ))}
                             </div>
 
-                            
-                    <div className="relative">
-    <input
-        value={abilityInput}
-        onChange={(e) => setAbilityInput(e.target.value)}
-        placeholder="Type ability name..."
-        className="px-4 py-2 border rounded-md text-sm w-full"
-    />
-    {suggestions.length > 0 && (
-        <div className="absolute z-10 bg-white border rounded-md w-full mt-1 shadow-md dark:bg-zinc-800">
-            {suggestions.map((s) => (
-                <button
-                    type="button"
-                    key={s.uuid}
-                    onClick={() => addAbility({ name: s.name, description: s.description, uuid: s.uuid })}
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 capitalize"
-                >
-                    {s.name}
-                </button>
-            ))}
-        </div>
-    )}
-</div>
+                            <div className="relative">
+                                <input
+                                    value={abilityInput}
+                                    onChange={(e) => setAbilityInput(e.target.value)}
+                                    placeholder="Type ability name..."
+                                    className="px-4 py-2 border rounded-md text-sm w-full"
+                                />
+                                {suggestions.length > 0 && (
+                                    <div className="absolute z-10 bg-white border rounded-md w-full mt-1 shadow-md dark:bg-zinc-800">
+                                        {suggestions.map((s) => (
+                                            <button
+                                                type="button"
+                                                key={s.uuid}
+                                                onClick={() => addAbility({ name: s.name, description: s.description, uuid: s.uuid })}
+                                                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 capitalize"
+                                            >
+                                                {s.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
 
-<input
-    value={abilityDescInput}
-    onChange={(e) => setAbilityDescInput(e.target.value)}
-    placeholder="Description (optional, only used for new abilities)"
-    className="px-4 py-2 border rounded-md text-sm w-full"
-/>
+                            <input
+                                value={abilityDescInput}
+                                onChange={(e) => setAbilityDescInput(e.target.value)}
+                                placeholder="Description (optional, only used for new abilities)"
+                                className="px-4 py-2 border rounded-md text-sm w-full"
+                            />
 
-<button
-    type="button"
-    onClick={addNewAbility}
-    className="self-start px-4 py-2 bg-blue-600 text-white rounded-md text-sm"
->
-    Add ability
-</button>
+                            <button
+                                type="button"
+                                onClick={addNewAbility}
+                                className="self-start px-4 py-2 bg-blue-600 text-white rounded-md text-sm"
+                            >
+                                Add ability
+                            </button>
+
+                            {serverErrors.abilities && (
+                                <span className="text-red-500 text-sm">{serverErrors.abilities}</span>
+                            )}
+                            {abilities.length === 0 && (
+                                <span className="text-red-500 text-sm">
+                                    A pokemon must have at least one ability.
+                                </span>
+                            )}
 
                             <div className="flex flex-col gap-1">
                                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -187,7 +204,11 @@ export default function Create({ auth }) {
                                 />
                             </div>
 
-                            <button type="submit" className="px-4 py-2 bg-gray-800 text-white rounded-md">
+                            <button
+                                type="submit"
+                                disabled={abilities.length === 0}
+                                className="px-4 py-2 bg-gray-800 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 Create
                             </button>
                         </form>

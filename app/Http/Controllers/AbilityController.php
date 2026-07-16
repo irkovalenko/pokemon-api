@@ -2,40 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Abilities\SearchAbilitiesAction;
+use App\Actions\Abilities\UpdateAbilityAction;
+use App\DataTransferObjects\Abilities\UpdateAbilityData;
+use App\DataTransferObjects\Abilities\SearchAbilitiesData;
+use App\Http\Requests\Abilities\UpdateAbilityRequest;
 use App\Http\Resources\AbilityResource;
 use App\Models\Ability;
 use Illuminate\Http\Request;
 
 class AbilityController extends Controller
 {
-    public function search(Request $request)
+    public function searchAbility(Request $request, SearchAbilitiesAction $action)
     {
-        $query = $request->input('query', '');
+        $data = SearchAbilitiesData::fromRequest($request);
 
-        $abilities = Ability::query()
-            ->with('creators')
-            ->when($query, fn($q) => $q->where('name', 'like', "%{$query}%"))
-            ->limit(10)
-            ->get();
+        $abilities = $action->execute($data);
 
         return AbilityResource::collection($abilities);
     }
 
-    public function update(Request $request, Ability $ability)
+    public function update(UpdateAbilityRequest $request, Ability $ability, UpdateAbilityAction $action)
     {
-        $ability->loadMissing('creator');
+        $data = UpdateAbilityData::fromArray($request->validated());
 
-        if (!$ability->canBeEditedBy($request->user())) {
-            abort(403, 'You are not allowed to edit this ability.');
-        }
+        $updatedAbility = $action->execute($ability, $data, $request->user());
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $ability->update($validated);
-
-        return new AbilityResource($ability->fresh('creator'));
+        return new AbilityResource($updatedAbility);
     }
 }
