@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, usePage} from '@inertiajs/react';
+import { Head, router} from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import { useRef, useState } from 'react'; 
@@ -10,7 +10,6 @@ import CommentItem from '@/Components/CommentItem';
 
 export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
-    const { flash } = usePage().props; //for flash messages
     const { data } = pokemon; // data resource json wraps by default in data
     const currentUser = auth.user;
     const isAdmin = currentUser?.role === 'admin';
@@ -65,12 +64,6 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                             }
                         </div>
 
-                        {flash?.message && (
-    <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
-        {flash.message}
-    </div>
-)}
-
                         {data.user && <h3>User: {data.user}</h3>}
 
                         <img
@@ -105,7 +98,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                             </h2>
                             <div className="flex flex-wrap gap-2">
     {data.abilities.map((ability) => (
-        <div key={ability.id} className="relative group">
+        <div key={ability.uuid} className="relative group">
             <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm capitalize cursor-help">
                 {ability.name}
             </span>
@@ -142,7 +135,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
 
     {showCommentBox && (
         <div className="mb-4">
-            <CommentBox dataId={data.id} onSubmitted={() => setShowCommentBox(false)} />
+            <CommentBox pokemonId={data.uuid} onSubmitted={() => setShowCommentBox(false)} />
         </div>
     )}
 
@@ -152,7 +145,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
             <CommentItem
             key={comment.id}
             comment={comment}
-            dataId={data.id}
+            pokemonId={data.uuid}
             editingId={editingId}
             setEditingId={setEditingId}
             editContent={editContent}
@@ -165,7 +158,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                     <CommentItem
                         key={reply.id}
                         comment={reply}
-                        dataId={data.id}
+                        dataId={data.uuid}
                         editingId={editingId}
                         setEditingId={setEditingId}
                         editContent={editContent}

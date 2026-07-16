@@ -2,54 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CommentRequest;
+use App\Actions\Comments\DeleteCommentAction;
+use App\Actions\Comments\StoreCommentAction;
+use App\Actions\Comments\UpdateCommentAction;
+use App\DataTransferObjects\Comments\StoreCommentData;
+use App\DataTransferObjects\Comments\UpdateCommentData;
+use App\Http\Requests\Comments\StoreCommentRequest;
+use App\Http\Requests\Comments\UpdateCommentRequest;
 use App\Models\Comment;
-use App\Http\Controllers\Controller;
 
 class CommentController extends Controller
 {
-
-    public function store(CommentRequest $request)
+    public function store(StoreCommentRequest $request, StoreCommentAction $action)
     {
-        $validated = $request->validated();
+        $data = StoreCommentData::fromArray($request->validated(), $request->user()->id);
 
-        Comment::create(
-            [
-                'pokemon_id' => $validated['pokemon_id'],
-                'user_id' => $request->user()->id,
-                'content' => $validated['content'],
-                'parent_id' => $validated['parent_id'] ?? null,
-            ]
-        );
+        $comment = $action->execute($data);
 
-        return to_route('pokemons.show', $validated['pokemon_id'])->with('success', 'Comment created successfully.');
+        return to_route('pokemons.show', $comment->pokemon_id)
+            ->with('success', 'Comment created successfully.');
     }
 
-
-    public function update(CommentRequest $request, Comment $comment)
+    public function update(UpdateCommentRequest $request, Comment $comment, UpdateCommentAction $action)
     {
-        $user = request()->user();
-        if ($user->id !== $comment->user->id) {
-            abort(403, 'This is not your comment, you can\'t edit it.');
-        }
+        $data = UpdateCommentData::fromArray($request->validated());
 
-        $validated = $request->validated();
-        $comment->update([
-            'content' => $validated['content'],
-        ]);
+        $action->execute($comment, $data, $request->user());
 
         return redirect()->route('pokemons.show', $comment->pokemon_id);
     }
 
-
-    public function destroy(Comment $comment)
+    public function destroy(Comment $comment, DeleteCommentAction $action)
     {
-        $user = request()->user();
-        if ($user->id !== $comment->user->id) {
-            abort(403, 'This is not your comment, you can\'t remove it.');
-        }
-        $pokemonId = $comment->pokemon_id;
-        $comment->delete();
-        return redirect()->route('pokemons.show', $pokemonId)->with('message', 'Comment deleted successfully');
+        $pokemonId = $action->execute($comment, request()->user());
+
+        return redirect()->route('pokemons.show', $pokemonId);
     }
 }

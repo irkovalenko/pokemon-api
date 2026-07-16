@@ -2,13 +2,13 @@
 
 namespace App\Actions\Abilities;
 
-use App\DataTransferObjects\Abilities\SearchAbilitiesData;
+use App\DataTransferObjects\Abilities\SearchAbilityData;
 use App\Models\Ability;
 use Illuminate\Database\Eloquent\Collection;
 
-class SearchAbilitiesAction
+class SearchAbilitiyAction
 {
-    public function execute(SearchAbilitiesData $data): Collection
+    public function execute(SearchAbilityData $data): Collection
     {
         return Ability::query()
             ->with('creator')

@@ -2,7 +2,7 @@
 
 namespace App\DataTransferObjects\Abilities;
 
-readonly class SearchAbilitiesData
+readonly class SearchAbilityData
 {
     public function __construct(
         public string $query = '',
