@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PokemonType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PokemonRequest extends FormRequest
 {
@@ -43,7 +45,7 @@ class PokemonRequest extends FormRequest
     {
         return [
             'name'        => ['required', 'string'],
-            'type'        => 'required|string',
+            'type'        => ['required', Rule::enum(PokemonType::class)],
 
             'abilities'                => 'required|array',
             'abilities.*.name'         => 'required|string|max:255',
