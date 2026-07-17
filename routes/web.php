@@ -24,10 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
     Route::get('/pokemons/create', [PokemonController::class, 'create'])->name('pokemons.create');
     Route::post('/pokemons', [PokemonController::class, 'store'])->name('pokemons.store');
-    Route::get('/pokemons/{uuid}/show', [PokemonController::class, 'show'])->name('pokemons.show');
-    Route::get('/pokemons/{uuid}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
-    Route::post('/pokemons/{uuid}/update', [PokemonController::class, 'update'])->name('pokemons.update');
-    Route::delete('/pokemons/{uuid}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
+    Route::get('/pokemons/{pokemon:uuid}/show', [PokemonController::class, 'show'])->name('pokemons.show');
+    Route::get('/pokemons/{pokemon:uuid}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
+    Route::post('/pokemons/{pokemon:uuid}/update', [PokemonController::class, 'update'])->name('pokemons.update');
+    Route::delete('/pokemons/{pokemon:uuid}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
 
     //abilities routes
     Route::get('/abilities/search', [AbilityController::class, 'searchAbility'])->name('abilities.search');
