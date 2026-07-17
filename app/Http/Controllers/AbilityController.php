@@ -10,10 +10,11 @@ use App\Http\Requests\Abilities\UpdateAbilityRequest;
 use App\Http\Resources\AbilityResource;
 use App\Models\Ability;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AbilityController extends Controller
 {
-    public function searchAbility(Request $request, SearchAbilitiyAction $action)
+    public function searchAbility(Request $request, SearchAbilitiyAction $action): AnonymousResourceCollection
     {
         $data = SearchAbilityData::fromRequest($request);
 
@@ -22,7 +23,7 @@ class AbilityController extends Controller
         return AbilityResource::collection($abilities);
     }
 
-    public function update(UpdateAbilityRequest $request, Ability $ability, UpdateAbilityAction $action)
+    public function update(UpdateAbilityRequest $request, Ability $ability, UpdateAbilityAction $action): AbilityResource
     {
         $data = UpdateAbilityData::fromArray($request->validated());
 
