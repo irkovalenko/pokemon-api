@@ -3,18 +3,17 @@ import { Head, router} from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import { useRef, useState } from 'react'; 
-import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import SecondaryButton from '@/Components/SecondaryButton';
 import CommentBox from '@/Components/CommentBox';
 import CommentItem from '@/Components/CommentItem';
 
-export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
+export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonTypes}) {
 
     const { data } = pokemon; // data resource json wraps by default in data
     const currentUser = auth.user;
     const isAdmin = currentUser?.role === 'admin';
     const audioRef = useRef(null);
-    const typeInfo = POKEMON_TYPES[data.type];
+    const type = pokemonTypes.find((t) => t.value === data.type);
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState('');
@@ -44,7 +43,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated}) {
                     <div className="bg-white rounded-lg shadow-md p-8 dark:bg-zinc-900 flex flex-col items-center gap-6">
                         <div className="flex items-center justify-between w-full">
                             <h3 className="self-start px-3 py-1 rounded-full border border-solid border-gray-800 text-gray-700 text-sm">
-                                {data.type} {typeInfo?.icon}
+                                {data.type} {type?.icon}
                             </h3>
                             {canBeDeletedOrUpdated && (
                                 <PrimaryButton onClick={() => router.visit(route('pokemons.edit', { uuid: data.uuid }))}>

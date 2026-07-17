@@ -1,12 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
 
-export default function Pokemons({ auth, pokemons}) {
+export default function Pokemons({ auth, pokemons, pokemonTypes}) {
     const {flash} = usePage().props;
     const currentUser = usePage().props.auth.user;
     const isAdmin = currentUser?.role === 'admin';
@@ -69,15 +68,16 @@ export default function Pokemons({ auth, pokemons}) {
         </button>
 
         {/* Type options */}
-        {Object.entries(POKEMON_TYPES).map(([type, info]) => (
+                {pokemonTypes.map(({ value, label, icon }) => (
             <button
-                key={type}
-                onClick={() => handleTypeFilter(type)}
+                key={value}
+                onClick={() => handleTypeFilter(value)}
                 className="block w-full px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 capitalize"
             >
-                {info.icon} {type}
+                {icon} {label}
             </button>
         ))}
+
     </Dropdown.Content>
 </Dropdown>
 
@@ -110,7 +110,7 @@ export default function Pokemons({ auth, pokemons}) {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-4">
                         {pokemons.data.map((pokemon) => {
-                            const typeInfo = POKEMON_TYPES[pokemon.type];
+                            const type = pokemonTypes.find((t) => t.value === pokemon.type);
                             
                             return(
                                 <div
@@ -139,7 +139,7 @@ export default function Pokemons({ auth, pokemons}) {
                                     <h2 className="text-lg font-semibold capitalize text-gray-800 dark:text-white">
                                         {pokemon.name}
                                     </h2>
-                                    <span>{pokemon.type} {typeInfo?.icon} </span>
+                                    <span>{type?.label} {type?.icon} </span>
                                 </div>
                             );
                         })
