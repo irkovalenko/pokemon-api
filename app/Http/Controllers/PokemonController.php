@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PokemonType;
 use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
 use App\Models\Ability;
@@ -30,6 +31,7 @@ class PokemonController extends Controller
 
         return Inertia::render('Pokemons/Index', [
             'pokemons' => PokemonResource::collection($pokemons),
+            'pokemonTypes' => PokemonType::forFrontend(),
         ]);
     }
 
@@ -63,7 +65,9 @@ class PokemonController extends Controller
 
     public function create()
     {
-        return Inertia::render('Pokemons/Create');
+        return Inertia::render('Pokemons/Create', [
+            'pokemonTypes' => PokemonType::forFrontend()
+        ],);
     }
 
     public function store(PokemonRequest $request)
@@ -132,6 +136,7 @@ class PokemonController extends Controller
         return Inertia::render('Pokemons/Show', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
+            'pokemonTypes' => PokemonType::forFrontend(),
         ]);
     }
 
@@ -142,6 +147,7 @@ class PokemonController extends Controller
         return Inertia::render('Pokemons/Edit', [
             'pokemon' => new PokemonResource($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
+            'pokemonTypes' => PokemonType::forFrontend(),
         ]);
     }
 

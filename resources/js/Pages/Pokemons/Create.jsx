@@ -1,11 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { POKEMON_TYPES } from '@/config/pokemonTypes';
 import Dropdown from '@/Components/Dropdown';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-export default function Create({ auth }) {
+export default function Create({ auth, pokemonTypes }) {
     const { errors: serverErrors } = usePage().props;
     const [selectedType, setSelectedType] = useState('');
     const { handleSubmit, register, formState: { errors } } = useForm();
@@ -84,7 +83,9 @@ export default function Create({ auth }) {
                         <Dropdown>
                             <Dropdown.Trigger>
                                 <button className="px-4 py-2 bg-white border border-black rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white">
-                                    {selectedType ? `${POKEMON_TYPES[selectedType]?.icon} ${selectedType}` : 'Select pokemon type ▼'}
+                                    {selectedType
+                                            ? `${pokemonTypes.find((t) => t.value === selectedType)?.icon} ${selectedType}`
+                                            : 'Select pokemon type ▼'}
                                 </button>
                             </Dropdown.Trigger>
                             <Dropdown.Content align="left" width="70">
@@ -94,13 +95,13 @@ export default function Create({ auth }) {
                                 >
                                     None
                                 </button>
-                                {Object.entries(POKEMON_TYPES).map(([type, info]) => (
+                                {pokemonTypes.map(({ value, label, icon }) => (
                                     <button
-                                        key={type}
-                                        onClick={() => setSelectedType(type)}
+                                        key={value}
+                                        onClick={() => setSelectedType(value)}
                                         className="block w-full px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 capitalize"
                                     >
-                                        {info.icon} {type}
+                                        {icon} {label}
                                     </button>
                                 ))}
                             </Dropdown.Content>
