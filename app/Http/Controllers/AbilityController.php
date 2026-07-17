@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Abilities\SearchAbilitiyAction;
+use App\Actions\Abilities\SearchAbilityAction;
 use App\Actions\Abilities\UpdateAbilityAction;
 use App\DataTransferObjects\Abilities\UpdateAbilityData;
 use App\DataTransferObjects\Abilities\SearchAbilityData;
@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AbilityController extends Controller
 {
-    public function searchAbility(Request $request, SearchAbilitiyAction $action): AnonymousResourceCollection
+    public function searchAbility(Request $request, SearchAbilityAction $action): AnonymousResourceCollection
     {
         $data = SearchAbilityData::fromRequest($request);
 

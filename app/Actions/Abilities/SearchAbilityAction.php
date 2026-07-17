@@ -6,7 +6,7 @@ use App\DataTransferObjects\Abilities\SearchAbilityData;
 use App\Models\Ability;
 use Illuminate\Database\Eloquent\Collection;
 
-class SearchAbilitiyAction
+class SearchAbilityAction
 {
     public function execute(SearchAbilityData $data): Collection
     {
