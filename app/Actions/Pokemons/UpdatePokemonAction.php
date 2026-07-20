@@ -22,6 +22,7 @@ class UpdatePokemonAction
         $pokemon->update([
             'name' => toKebabCase($data->name),
             'type' => $data->type,
+            'description' => $data->description ? [$data->description] : $pokemon->description,
             'image_path' => $files['image_path'] ?? $pokemon->image_path,
             'cry' => $files['cry'] ?? $pokemon->cry,
         ]);

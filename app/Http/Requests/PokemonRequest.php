@@ -46,7 +46,7 @@ class PokemonRequest extends FormRequest
         return [
             'name'        => ['required', 'string'],
             'type'        => ['required', Rule::enum(PokemonType::class)],
-
+            'description'              => 'nullable|string|max:4000',
             'abilities'                => 'required|array',
             'abilities.*.name'         => 'required|string|max:255',
             'abilities.*.description'  => 'nullable|string',

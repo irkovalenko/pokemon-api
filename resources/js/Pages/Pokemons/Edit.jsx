@@ -123,6 +123,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
         router.post(route('pokemons.update', pokemon.data.uuid), {
             name: values.name,
             type: selectedType || pokemon.data.type,
+            description: values.description,
             abilities: JSON.stringify(abilities),
             cry: values.cry?.[0] ?? null,
             image: values.image?.[0] ?? null,
@@ -192,6 +193,15 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                 className="px-4 py-2 border rounded-md text-sm"
                             />
                             {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
+
+                            <textarea
+                                {...register('description')}
+                                placeholder="Pokemon description"
+                                rows={5}
+                                defaultValue={pokemon.data.description?.[0] ?? ''}
+                                className="px-4 py-2 border rounded-md text-sm"
+                            />
+                            {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
 
                             {/* All abilities currently attached to this pokemon.
                                 Any can be removed from this pokemon; none can have
