@@ -16,12 +16,11 @@ use App\DataTransferObjects\Pokemons\UpdatePokemonData;
 use App\Enums\PokemonType;
 use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
-use App\Models\Ability;
 use App\Models\Pokemon;
+use App\Services\PokemonDescriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Log;
 use Inertia\Response;
 
 class PokemonController extends Controller

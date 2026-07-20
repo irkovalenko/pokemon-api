@@ -22,6 +22,7 @@ class PokemonResource extends JsonResource
             'cry' => $this->formatFileUrl($this->cry),
             'type' => $this->type,
             'if_banned'  => $this->if_banned,
+            'description' => $this->description,
             'abilities' => AbilityResource::collection($this->whenLoaded('abilities')),
             'comments' => CommentResource::collection($this->whenLoaded('comments', fn() => $this->comments->whereNull('parent_id'))),
             'user' => $this->whenLoaded('user', fn() => $this->user->first()?->name),
