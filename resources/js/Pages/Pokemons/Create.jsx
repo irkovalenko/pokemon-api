@@ -115,6 +115,14 @@ export default function Create({ auth, pokemonTypes }) {
                             />
                             {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
 
+                            <textarea
+                                {...register('description')}
+                                placeholder="Pokemon description"
+                                rows={5}
+                                className="px-4 py-2 border rounded-md text-sm"
+                            />
+                            {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
+
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {abilities.map((ability, index) => (
                                     <span

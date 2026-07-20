@@ -18,6 +18,7 @@ class StorePokemonAction
         $pokemon = Pokemon::create([
             'name' => toKebabCase($data->name),
             'type' => $data->type,
+            'description' => $data->description ? [$data->description] : null,
             'image_path' => $files['image_path'],
             'cry' => $files['cry'],
             'if_banned' => 0,
