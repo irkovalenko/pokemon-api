@@ -17,13 +17,9 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState('');
-    const [showFullDescription, setShowFullDescription] = useState(false);
 
-    const fullDescription = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
-    const description = showFullDescription 
-        ? fullDescription 
-        : fullDescription.substring(0, 50) + '...';
+    const descriptions = data.description ?? [];
+    const [showAllDescriptions, setShowAllDescriptions] = useState(false);
 
 
     return (
@@ -114,13 +110,34 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                         </div>
 
                         <div className="mt-4">
-                                {description}
-                            
-                             <button
-              onClick =  {() => setShowFullDescription((prevState) => !prevState )}
-              className="text-indigo-500 mb-5 hover:text-indigo-600">
-                {showFullDescription ? 'Less' : 'More'}
-              </button>
+                                 {descriptions.length === 0 && (
+        <p className="text-gray-500">No description available.</p>
+    )}
+
+    {descriptions.length > 0 && (
+        <>
+            <p>{descriptions[0]}</p>
+
+            {descriptions.length > 1 && (
+                <button
+                    onClick={() => setShowAllDescriptions((prev) => !prev)}
+                    className="text-indigo-500 mt-2 mb-5 hover:text-indigo-600"
+                >
+                    {showAllDescriptions
+                        ? 'Show less'
+                        : `Show ${descriptions.length - 1} more variant(s)`}
+                </button>
+            )}
+
+            {showAllDescriptions && (
+                <ul className="mt-2 space-y-2 text-sm text-gray-600">
+                    {descriptions.slice(1).map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                    ))}
+                </ul>
+            )}
+        </>
+    )}
                             </div>
                     </div>
 

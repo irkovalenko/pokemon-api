@@ -23,12 +23,14 @@ class Pokemon extends Model
         'image_path',
         'cry',
         'if_banned',
+        'description'
     ];
 
     protected function casts(): array
     {
         return [
             'type' => PokemonType::class,
+            'description' => 'array',
         ];
     }
 
