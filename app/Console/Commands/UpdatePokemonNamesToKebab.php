@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 #[Signature('update-pokemon-names-to-kebab')]
-#[Description('Command description')]
+#[Description('Updates the names of all Pokemon in the database to kebab-case format.')]
 class UpdatePokemonNamesToKebab extends Command
 {
     /**

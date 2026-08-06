@@ -2,13 +2,15 @@
 
 namespace App\DataTransferObjects\Abilities;
 
+use Illuminate\Http\Request as Request;
+
 readonly class SearchAbilityData
 {
     public function __construct(
         public string $query = '',
     ) {}
 
-    public static function fromRequest(\Illuminate\Http\Request $request): self
+    public static function fromRequest(Request $request): self
     {
         return new self(
             query: $request->input('query', ''),
