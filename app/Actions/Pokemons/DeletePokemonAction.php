@@ -12,11 +12,11 @@ class DeletePokemonAction
     {
         $ownsPokemon = $user->pokemons()->where('pokemons.uuid', $pokemon->uuid)->exists();
 
-        if (!$user->isAdmin() && !$ownsPokemon) {
+        if (! $user->isAdmin() && ! $ownsPokemon) {
             abort(403);
         }
 
-        if (!$pokemon->canBeDeletedOrUpdated()) {
+        if (! $pokemon->canBeDeletedOrUpdated()) {
             abort(403, 'This pokemon cannot be deleted.');
         }
 

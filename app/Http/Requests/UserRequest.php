@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,7 +17,7 @@ class UserRequest extends FormRequest
         $id = $this->route('user')?->id;
 
         return [
-            'name'        => [
+            'name' => [
                 'required',
                 'max:255',
                 'string',

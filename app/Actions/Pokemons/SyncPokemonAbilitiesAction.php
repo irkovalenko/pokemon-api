@@ -17,7 +17,7 @@ class SyncPokemonAbilitiesAction
         /** @var AbilityData $ability */
         foreach ($abilities as $ability) {
             if (! empty($ability->uuid)) {
-                //it is an existing ability, just find it
+                // it is an existing ability, just find it
                 $abilityModel = Ability::where('uuid', $ability->uuid)->firstOrFail();
             } else {
                 // it is a new ability, create it

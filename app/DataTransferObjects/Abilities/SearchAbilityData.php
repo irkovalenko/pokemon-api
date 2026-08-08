@@ -2,7 +2,7 @@
 
 namespace App\DataTransferObjects\Abilities;
 
-use Illuminate\Http\Request as Request;
+use Illuminate\Http\Request;
 
 readonly class SearchAbilityData
 {

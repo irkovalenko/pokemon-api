@@ -15,10 +15,9 @@ Route::get('/', function () {
     ]);
 });
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    //pokemon routes
+    // pokemon routes
     Route::get('/dashboard', [PokemonController::class, 'index'])->name('dashboard');
     Route::get('/banned', [PokemonController::class, 'banned'])->name('banned');
     Route::post('/pokemons/{pokemon}/toggle-ban', [PokemonController::class, 'toggleBan'])->name('pokemons.toggleBan');
@@ -29,18 +28,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/pokemons/{pokemon:uuid}/update', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{pokemon:uuid}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
 
-    //abilities routes
+    // abilities routes
     Route::get('/abilities/search', [AbilityController::class, 'searchAbility'])->name('abilities.search');
     Route::patch('/abilities/{ability}', [AbilityController::class, 'update'])->name('abilities.update');
 
-
-    //comments routes
+    // comments routes
     // web.php
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
-    //user routes
+    // user routes
     Route::get('/users', [UserController::class, 'index'])->name('users');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -49,10 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.delete');
 
-    //profile routes
+    // profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

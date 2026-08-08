@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\Abilities\SearchAbilityAction;
 use App\Actions\Abilities\UpdateAbilityAction;
-use App\DataTransferObjects\Abilities\UpdateAbilityData;
 use App\DataTransferObjects\Abilities\SearchAbilityData;
+use App\DataTransferObjects\Abilities\UpdateAbilityData;
 use App\Http\Requests\Abilities\UpdateAbilityRequest;
 use App\Http\Resources\AbilityResource;
 use App\Models\Ability;

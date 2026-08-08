@@ -44,28 +44,28 @@ class PokemonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string'],
-            'type'        => ['required', Rule::enum(PokemonType::class)],
-            'description'              => 'nullable|string|max:4000',
-            'abilities'                => 'required|array',
-            'abilities.*.name'         => 'required|string|max:255',
-            'abilities.*.description'  => 'nullable|string',
-            'abilities.*.uuid'         => 'nullable|string|uuid|exists:abilities,uuid',
+            'name' => ['required', 'string'],
+            'type' => ['required', Rule::enum(PokemonType::class)],
+            'description' => 'nullable|string|max:4000',
+            'abilities' => 'required|array',
+            'abilities.*.name' => 'required|string|max:255',
+            'abilities.*.description' => 'nullable|string',
+            'abilities.*.uuid' => 'nullable|string|uuid|exists:abilities,uuid',
 
-            'cry'   => ['nullable', function ($_attribute, $value, $fail) {
-                /*    
+            'cry' => ['nullable', function ($_attribute, $value, $fail) {
+                /*
             $_attribute means intentionally unused
             closure function does function ($value, $fail)
             */
-                if ($value && !in_array($value->getClientOriginalExtension(), ['ogg', 'mp3'])) {
+                if ($value && ! in_array($value->getClientOriginalExtension(), ['ogg', 'mp3'])) {
                     $fail('The cry must be an mp3 or ogg file.');
                 }
             }],
             'image' => ['nullable', function ($_attribute, $value, $fail) {
-                if ($value && !in_array($value->getClientOriginalExtension(), ['png', 'jpg', 'jpeg'])) {
+                if ($value && ! in_array($value->getClientOriginalExtension(), ['png', 'jpg', 'jpeg'])) {
                     $fail('The image must be a png, jpg, or jpeg file.');
                 }
-            }]
+            }],
         ];
     }
 }

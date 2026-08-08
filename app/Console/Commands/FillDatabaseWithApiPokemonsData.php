@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 class FillDatabaseWithApiPokemonsData extends Command
 {
     protected $signature = 'pokemons:fill {from=1} {to=100} {--fresh : Wipe existing pokemons before seeding}';
+
     protected $description = 'Fills the database with the data from PokeAPI';
 
     public function handle(PokemonService $service)
@@ -33,10 +34,10 @@ class FillDatabaseWithApiPokemonsData extends Command
             $pokemonModel = Pokemon::updateOrCreate(
                 ['api_id' => $pokemon['id']],
                 [
-                    'name'       => $pokemon['name'],
-                    'type'       => $pokemon['type'],
+                    'name' => $pokemon['name'],
+                    'type' => $pokemon['type'],
                     'image_path' => $pokemon['image_path'],
-                    'cry'        => $pokemon['cry'],
+                    'cry' => $pokemon['cry'],
                 ]
             );
 
@@ -47,7 +48,7 @@ class FillDatabaseWithApiPokemonsData extends Command
                 );
 
                 // if the ability already existed without a description, backfill it
-                if (!$abilityModel->description && $ability['description']) {
+                if (! $abilityModel->description && $ability['description']) {
                     $abilityModel->update(['description' => $ability['description']]);
                 }
 

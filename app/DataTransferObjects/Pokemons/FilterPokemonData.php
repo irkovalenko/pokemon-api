@@ -3,6 +3,7 @@
 namespace App\DataTransferObjects\Pokemons;
 
 use App\Enums\PokemonType;
+use Illuminate\Http\Request;
 
 readonly class FilterPokemonData
 {
@@ -12,7 +13,7 @@ readonly class FilterPokemonData
         public ?string $user = null,
     ) {}
 
-    public static function fromRequest(\Illuminate\Http\Request $request): self //just from and do not pass the request but only the validated array from the request
+    public static function fromRequest(Request $request): self // just from and do not pass the request but only the validated array from the request
     {
         return new self(
             type: $request->enum('type', PokemonType::class),

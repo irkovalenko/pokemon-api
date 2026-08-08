@@ -11,9 +11,9 @@ class IndexPokemonAction
     public function execute(FilterPokemonData $data): LengthAwarePaginator
     {
         return Pokemon::query()
-            ->when($data->type, fn($q) => $q->where('type', $data->type)) // builder syntax and for return fn(Buider $q): Builder
-            ->when($data->name, fn($q) => $q->where('name', 'like', "%{$data->name}%"))
-            ->when($data->user, fn($q) => $q->whereHas('user', fn($q) => $q->where('name', 'like', "%{$data->user}%"))) // or for name and user
+            ->when($data->type, fn ($q) => $q->where('type', $data->type)) // builder syntax and for return fn(Buider $q): Builder
+            ->when($data->name, fn ($q) => $q->where('name', 'like', "%{$data->name}%"))
+            ->when($data->user, fn ($q) => $q->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$data->user}%"))) // or for name and user
             ->where('if_banned', 0)
             ->with('user')
             ->paginate();

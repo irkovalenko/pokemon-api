@@ -10,8 +10,8 @@ use App\Actions\Pokemons\StorePokemonAction;
 use App\Actions\Pokemons\ToggleBanPokemonAction;
 use App\Actions\Pokemons\UpdatePokemonAction;
 use App\DataTransferObjects\Pokemons\FilterPokemonData;
-use App\DataTransferObjects\Pokemons\PokemonFilesData;
 use App\DataTransferObjects\Pokemons\PokemonData;
+use App\DataTransferObjects\Pokemons\PokemonFilesData;
 use App\Enums\PokemonType;
 use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
@@ -23,10 +23,9 @@ use Inertia\Response;
 
 class PokemonController extends Controller
 {
-
     public function index(Request $request, IndexPokemonAction $action): Response
     {
-        $pokemons = $action->execute(FilterPokemonData::fromRequest($request)); //create + pass the request validated array (install laravel data packages) instead of fromRequest
+        $pokemons = $action->execute(FilterPokemonData::fromRequest($request)); // create + pass the request validated array (install laravel data packages) instead of fromRequest
 
         return Inertia::render('Pokemons/Index', [
             'pokemons' => PokemonResource::collection($pokemons),
@@ -36,7 +35,7 @@ class PokemonController extends Controller
 
     public function banned(Request $request)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -50,6 +49,7 @@ class PokemonController extends Controller
     public function toggleBan(Pokemon $pokemon, Request $request, ToggleBanPokemonAction $action): RedirectResponse
     {
         $pokemon = $action->execute($pokemon, $request->user());
+
         return back()->with(
             'message',
             $pokemon->if_banned ? 'Pokemon hidden successfully!' : 'Pokemon unhidden successfully!'
@@ -59,8 +59,8 @@ class PokemonController extends Controller
     public function create()
     {
         return Inertia::render('Pokemons/Create', [
-            'pokemonTypes' => PokemonType::forFrontend()
-        ],);
+            'pokemonTypes' => PokemonType::forFrontend(),
+        ], );
     }
 
     public function store(
