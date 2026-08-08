@@ -8,14 +8,13 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class ToggleBanPokemonAction
 {
-
     public function execute(Pokemon $pokemon, ?User $user): Pokemon
     {
-        if (!$user?->isAdmin()) {
-            throw new AuthorizationException();
+        if (! $user?->isAdmin()) {
+            throw new AuthorizationException;
         }
         $pokemon->update([
-            'if_banned' => ! $pokemon->if_banned
+            'if_banned' => ! $pokemon->if_banned,
         ]);
 
         return $pokemon;

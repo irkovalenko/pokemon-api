@@ -59,7 +59,7 @@ enum PokemonType: string
      */
     public static function forFrontend(): Collection
     {
-        return collect(self::cases())->map(fn($type) => [
+        return collect(self::cases())->map(fn ($type) => [
             'value' => $type->value,
             'label' => $type->label(),
             'icon' => $type->icon(),

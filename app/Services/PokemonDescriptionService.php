@@ -25,7 +25,7 @@ class PokemonDescriptionService
         return collect($data['flavor_text_entries'] ?? [])
             ->where('language.name', 'en')
             ->pluck('flavor_text')
-            ->map(fn($text) => preg_replace('/\s+/', ' ', trim($text))) // collape any escape character
+            ->map(fn ($text) => preg_replace('/\s+/', ' ', trim($text))) // collape any escape character
             // same visual text, different invisible characters problem
             ->unique()
             ->values();

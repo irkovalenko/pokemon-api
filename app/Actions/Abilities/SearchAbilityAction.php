@@ -12,7 +12,7 @@ class SearchAbilityAction
     {
         return Ability::query()
             ->with('creator')
-            ->when($data->query, fn($q) => $q->where('name', 'like', "%{$data->query}%"))
+            ->when($data->query, fn ($q) => $q->where('name', 'like', "%{$data->query}%"))
             ->limit(10)
             ->get();
     }

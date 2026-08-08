@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class FillPokemonDescription extends Command
 {
     protected $signature = 'pokemon:fill-descriptions';
+
     protected $description = 'Fetch and store descriptions for pokemon sourced from PokeAPI';
 
     public function handle(PokemonDescriptionService $service): void

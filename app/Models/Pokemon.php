@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\PokemonType;
-use App\Models\Comment;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,10 +11,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Pokemon extends Model
 {
     use HasUuids;
+
     protected $table = 'pokemons';
+
     protected $primaryKey = 'uuid';
+
     protected $keyType = 'string';
-    public $incrementing = false; //applies to primary key
+
+    public $incrementing = false; // applies to primary key
+
     protected $fillable = [
         'api_id',
         'name',
@@ -23,7 +27,7 @@ class Pokemon extends Model
         'image_path',
         'cry',
         'if_banned',
-        'description'
+        'description',
     ];
 
     protected function casts(): array
@@ -61,7 +65,7 @@ class Pokemon extends Model
         return $this->belongsToMany(User::class, 'pokemon_user', 'pokemon_id', 'user_id', 'uuid');
     }
 
-    public function canBeDeletedOrUpdated(): bool //only the records in pokemon_user
+    public function canBeDeletedOrUpdated(): bool // only the records in pokemon_user
     {
         return $this->user()->exists();
     }

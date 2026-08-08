@@ -11,7 +11,7 @@ class ShowPokemonAction
         return $pokemon->load([
             'abilities.creator',
             'user',
-            'comments' => fn($query) => $query->orderBy('created_at', 'desc'),
+            'comments' => fn ($query) => $query->orderBy('created_at', 'desc'),
             'comments.user',
             'comments.replies.user',
         ]);

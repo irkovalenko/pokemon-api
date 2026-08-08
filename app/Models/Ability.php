@@ -11,14 +11,17 @@ class Ability extends Model
     use HasUuids;
 
     protected $table = 'abilities';
+
     protected $primaryKey = 'uuid';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
         'api_id',
         'name',
-        'description'
+        'description',
     ];
 
     public function pokemons(): BelongsToMany
@@ -47,7 +50,7 @@ class Ability extends Model
 
     public function isCreatedBy(?User $user): bool
     {
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -56,7 +59,7 @@ class Ability extends Model
 
     public function canBeEditedBy(?User $user): bool
     {
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 

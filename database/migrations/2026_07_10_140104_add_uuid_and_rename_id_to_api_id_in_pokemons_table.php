@@ -10,7 +10,7 @@ return new class extends Migration
     private function dropIndexIfExists(string $table, string $index): void
     {
         $exists = DB::select("SHOW INDEX FROM `$table` WHERE Key_name = ?", [$index]);
-        if (!empty($exists)) {
+        if (! empty($exists)) {
             DB::statement("ALTER TABLE `$table` DROP INDEX `$index`");
         }
     }

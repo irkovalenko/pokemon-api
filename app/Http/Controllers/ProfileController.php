@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Role;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,10 +18,9 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
-            'user'            => $request->user(),
+            'user' => $request->user(),
         ]);
     }
-
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -36,7 +34,6 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit');
     }
-
 
     public function destroy(Request $request): RedirectResponse
     {

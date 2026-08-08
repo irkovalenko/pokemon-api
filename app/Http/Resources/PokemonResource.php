@@ -21,19 +21,18 @@ class PokemonResource extends JsonResource
             'image_path' => $this->formatFileUrl($this->image_path),
             'cry' => $this->formatFileUrl($this->cry),
             'type' => $this->type,
-            'if_banned'  => $this->if_banned,
+            'if_banned' => $this->if_banned,
             'description' => $this->description,
             'abilities' => AbilityResource::collection($this->whenLoaded('abilities')),
-            'comments' => CommentResource::collection($this->whenLoaded('comments', fn() => $this->comments->whereNull('parent_id'))),
-            'user' => $this->whenLoaded('user', fn() => $this->user->first()?->name),
+            'comments' => CommentResource::collection($this->whenLoaded('comments', fn () => $this->comments->whereNull('parent_id'))),
+            'user' => $this->whenLoaded('user', fn () => $this->user->first()?->name),
 
         ];
     }
 
-
     private function formatFileUrl(?string $path): ?string
     {
-        if (!$path) {
+        if (! $path) {
             return null;
         }
 

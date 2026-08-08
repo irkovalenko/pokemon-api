@@ -2,11 +2,10 @@
 
 namespace App\Actions\Pokemons;
 
-use App\DataTransferObjects\Pokemons\PokemonFilesData;
 use App\DataTransferObjects\Pokemons\PokemonData;
+use App\DataTransferObjects\Pokemons\PokemonFilesData;
 use App\Models\Pokemon;
 use App\Models\User;
-
 
 class StorePokemonAction
 {

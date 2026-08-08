@@ -13,7 +13,7 @@ class PokemonService
             'name' => $pokemon['name'],
             'type' => $pokemon['types'][0]['type']['name'],
             'abilities' => collect($pokemon['abilities'])
-                ->map(fn($ability) => [
+                ->map(fn ($ability) => [
                     'name' => $ability['ability']['name'],
                     'description' => $abilityDescription[$ability['ability']['name']] ?? null,
                 ])
@@ -30,31 +30,31 @@ class PokemonService
             'offset' => $offset,
         ]);
 
-        if (!$listing->successful()) {
+        if (! $listing->successful()) {
             return [];
         }
 
         $urls = collect($listing->json('results'))->pluck('url');
 
         $responses = Http::pool(
-            fn($pool) => $urls->map(fn($url) => $pool->get($url))->toArray()
+            fn ($pool) => $urls->map(fn ($url) => $pool->get($url))->toArray()
         );
 
         $pokemonPayloads = collect($responses)
-            ->filter(fn($res) => $res->successful())
-            ->map(fn($res) => $res->json())
+            ->filter(fn ($res) => $res->successful())
+            ->map(fn ($res) => $res->json())
             ->values();
 
         // Collect every unique ability url across all fetched pokemon
         $abilityUrls = $pokemonPayloads
-            ->flatMap(fn($p) => collect($p['abilities'])->pluck('ability.url'))
+            ->flatMap(fn ($p) => collect($p['abilities'])->pluck('ability.url'))
             ->unique()
             ->values();
 
         $abilityDescription = $this->getAbilityDescription($abilityUrls->toArray());
 
         return $pokemonPayloads
-            ->map(fn($pokemon) => $this->transform($pokemon, $abilityDescription))
+            ->map(fn ($pokemon) => $this->transform($pokemon, $abilityDescription))
             ->values()
             ->toArray();
     }
@@ -69,11 +69,11 @@ class PokemonService
         }
 
         $responses = Http::pool(
-            fn($pool) => collect($abilityUrls)->map(fn($url) => $pool->get($url))->toArray()
+            fn ($pool) => collect($abilityUrls)->map(fn ($url) => $pool->get($url))->toArray()
         );
 
         return collect($responses)
-            ->filter(fn($res) => $res->successful())
+            ->filter(fn ($res) => $res->successful())
             ->mapWithKeys(function ($res) {
                 $data = $res->json();
 

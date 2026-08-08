@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -20,7 +20,7 @@ class UserController extends Controller
             ->orderBy('role')
             ->latest()
             ->paginate(15)
-            ->through(fn($user) => [
+            ->through(fn ($user) => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
@@ -35,7 +35,7 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -44,24 +44,23 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
         $validated = $request->validated();
-        $validated['name'] = ucfirst($validated['name']); //capitalize name
-        $validated['password'] = bcrypt('changeme123'); //default password
+        $validated['name'] = ucfirst($validated['name']); // capitalize name
+        $validated['password'] = bcrypt('changeme123'); // default password
         User::create($validated);
 
-        //Password::sendResetLink(['email' => $validated['email']]);
+        // Password::sendResetLink(['email' => $validated['email']]);
 
         return to_route('users')->with('success', 'User created successfully.');
     }
 
-
     public function edit(Request $request, User $user)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -71,10 +70,9 @@ class UserController extends Controller
         ]);
     }
 
-
     public function update(UserRequest $request, User $user)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403);
         }
 
@@ -86,7 +84,7 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user)
     {
-        if (!$request->user()?->isAdmin()) {
+        if (! $request->user()?->isAdmin()) {
             abort(403, 'You don\'t have permission to delete users.');
         }
 
@@ -98,6 +96,7 @@ class UserController extends Controller
             abort(403, 'Cannot delete a user who has pokemons.');
         }
         $user->delete();
+
         return to_route('users')->with('success', 'User deleted successfully');
     }
 }

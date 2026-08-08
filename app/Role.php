@@ -4,7 +4,7 @@ namespace App;
 
 enum Role: string
 {
-    case ADMIN = "admin";
-    case USER = "user";
-    case VIEVER = "viewer";
+    case ADMIN = 'admin';
+    case USER = 'user';
+    case VIEVER = 'viewer';
 }
