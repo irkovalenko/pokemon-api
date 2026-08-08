@@ -4,20 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Actions\Pokemons\DeletePokemonAction;
 use App\Actions\Pokemons\EditPokemonAction;
-use App\Actions\Pokemons\HandlePokemonCryAndImageAction;
 use App\Actions\Pokemons\IndexPokemonAction;
 use App\Actions\Pokemons\ShowPokemonAction;
 use App\Actions\Pokemons\StorePokemonAction;
 use App\Actions\Pokemons\ToggleBanPokemonAction;
 use App\Actions\Pokemons\UpdatePokemonAction;
 use App\DataTransferObjects\Pokemons\FilterPokemonData;
-use App\DataTransferObjects\Pokemons\StorePokemonData;
-use App\DataTransferObjects\Pokemons\UpdatePokemonData;
+use App\DataTransferObjects\Pokemons\PokemonFilesData;
+use App\DataTransferObjects\Pokemons\PokemonData;
 use App\Enums\PokemonType;
 use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
 use App\Models\Pokemon;
-use App\Services\PokemonDescriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,7 +26,7 @@ class PokemonController extends Controller
 
     public function index(Request $request, IndexPokemonAction $action): Response
     {
-        $pokemons = $action->execute(FilterPokemonData::fromRequest($request));
+        $pokemons = $action->execute(FilterPokemonData::fromRequest($request)); //create + pass the request validated array (install laravel data packages) instead of fromRequest
 
         return Inertia::render('Pokemons/Index', [
             'pokemons' => PokemonResource::collection($pokemons),
@@ -45,7 +43,7 @@ class PokemonController extends Controller
         $pokemon = Pokemon::where('if_banned', 1)->get();
 
         return Inertia::render('BannedList', [
-            'pokemons' => PokemonResource::collection($pokemon),
+            'pokemons' => PokemonResource::collection($pokemon), // read how to return dto or collection of dtos
         ]);
     }
 
@@ -67,13 +65,15 @@ class PokemonController extends Controller
 
     public function store(
         PokemonRequest $request,
+        PokemonData $data,
         StorePokemonAction $action,
-        HandlePokemonCryAndImageAction $fileUploads
     ): RedirectResponse {
-        $data = StorePokemonData::fromArray($request->validated());
-        $files = $fileUploads->execute($request);
+        $files = PokemonFilesData::from([
+            'image' => $request->file('image'),
+            'cry' => $request->file('cry'),
+        ]);
 
-        $pokemon = $action->execute($data, $files, $request->user());
+        $pokemon = $action->execute($files, $data, $request->user());
 
         return redirect()->route('pokemons.show', $pokemon->uuid);
     }
@@ -104,10 +104,12 @@ class PokemonController extends Controller
         PokemonRequest $request,
         Pokemon $pokemon,
         UpdatePokemonAction $action,
-        HandlePokemonCryAndImageAction $fileUploads
     ): RedirectResponse {
-        $data = UpdatePokemonData::fromArray($request->validated());
-        $files = $fileUploads->execute($request);
+        $data = PokemonData::from($request->validated());
+        $files = PokemonFilesData::from([
+            'image' => $request->file('image'),
+            'cry' => $request->file('cry'),
+        ]);
 
         $pokemon = $action->execute($pokemon, $data, $files, $request->user());
 
