@@ -2,9 +2,11 @@
 
 namespace App\Actions\Pokemons;
 
-use App\DataTransferObjects\Pokemons\StorePokemonData;
+use App\DataTransferObjects\Pokemons\PokemonFilesData;
+use App\DataTransferObjects\Pokemons\PokemonData;
 use App\Models\Pokemon;
 use App\Models\User;
+
 
 class StorePokemonAction
 {
@@ -13,14 +15,16 @@ class StorePokemonAction
         private SyncPokemonAbilitiesAction $syncAbilities,
     ) {}
 
-    public function execute(StorePokemonData $data, array $files, User $user): Pokemon
+    public function execute(PokemonFilesData $files, PokemonData $data, User $user): Pokemon
     {
+        $uploadedFiles = $this->fileUploads->execute($files);
+
         $pokemon = Pokemon::create([
             'name' => toKebabCase($data->name),
             'type' => $data->type,
             'description' => $data->description ? [$data->description] : null,
-            'image_path' => $files['image_path'],
-            'cry' => $files['cry'],
+            'image_path' => $uploadedFiles['image_path'],
+            'cry' => $uploadedFiles['cry'],
             'if_banned' => 0,
         ]);
 

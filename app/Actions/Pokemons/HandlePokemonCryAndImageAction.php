@@ -2,25 +2,17 @@
 
 namespace App\Actions\Pokemons;
 
-use Illuminate\Http\Request;
+use App\DataTransferObjects\Pokemons\PokemonFilesData;
 
 class HandlePokemonCryAndImageAction
 {
     /**
      * @return array{image_path: ?string, cry: ?string}
      */
-    public function execute(Request $request): array
+    public function execute(PokemonFilesData $files): array
     {
-        $imagePath = null;
-        $cryPath = null;
-
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images/pokemon', 'public');
-        }
-
-        if ($request->hasFile('cry')) {
-            $cryPath = $request->file('cry')->store('cries', 'public');
-        }
+        $imagePath = $files->image?->store('images/pokemon', 'public');
+        $cryPath = $files->cry?->store('cries', 'public');
 
         return [
             'image_path' => $imagePath,
@@ -28,3 +20,7 @@ class HandlePokemonCryAndImageAction
         ];
     }
 }
+
+// check if there is already such image or add version, overwriting
+// images/pokemon/{pokemon_id}
+// change to private storing
