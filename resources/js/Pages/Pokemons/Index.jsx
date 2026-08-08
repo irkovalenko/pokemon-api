@@ -21,17 +21,10 @@ export default function Pokemons({ auth, pokemons, pokemonTypes}) {
     });
 };
 
-  const handleNameFilter = (name) => {
+
+ const handleNameUserFilter = (name) => {
     router.visit(route('dashboard'), {
         data: { name },
-        preserveState: true,
-    });
-};
-
-
- const handleUserFilter = (user) => {
-    router.visit(route('dashboard'), {
-        data: { user },
         preserveState: true,
     });
 };
@@ -83,16 +76,9 @@ export default function Pokemons({ auth, pokemons, pokemonTypes}) {
 
  <input
         type="text"
-        placeholder="Search by name..."
-        onChange={(e) => handleNameFilter(e.target.value)}
-        className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
-    />
-
-     <input
-        type="text"
-        placeholder="Search by user..."
-        onChange={(e) => handleUserFilter(e.target.value)}
-        className="px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
+        placeholder="Search by pokemon name or user name..."
+        onChange={(e) => handleNameUserFilter(e.target.value)}
+        className="flex-1 min-w-[320px] px-4 py-2 bg-white rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white border border-gray-200"
     />
  
     <div className="ml-auto">
