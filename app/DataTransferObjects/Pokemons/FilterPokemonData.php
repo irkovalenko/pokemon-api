@@ -3,22 +3,12 @@
 namespace App\DataTransferObjects\Pokemons;
 
 use App\Enums\PokemonType;
-use Illuminate\Http\Request;
+use Spatie\LaravelData\Data;
 
-readonly class FilterPokemonData
+class FilterPokemonData extends Data
 {
     public function __construct(
         public ?PokemonType $type = null,
-        public ?string $name = null, // combine name and user into one search property
-        public ?string $user = null,
+        public ?string $name = null,
     ) {}
-
-    public static function fromRequest(Request $request): self // just from and do not pass the request but only the validated array from the request
-    {
-        return new self(
-            type: $request->enum('type', PokemonType::class),
-            name: $request->input('name'),
-            user: $request->input('user'),
-        );
-    }
 }

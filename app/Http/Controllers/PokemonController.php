@@ -25,7 +25,7 @@ class PokemonController extends Controller
 {
     public function index(Request $request, IndexPokemonAction $action): Response
     {
-        $pokemons = $action->execute(FilterPokemonData::fromRequest($request)); // create + pass the request validated array (install laravel data packages) instead of fromRequest
+        $pokemons = $action->execute(FilterPokemonData::from($request->query()));
 
         return Inertia::render('Pokemons/Index', [
             'pokemons' => PokemonResource::collection($pokemons),
@@ -60,7 +60,7 @@ class PokemonController extends Controller
     {
         return Inertia::render('Pokemons/Create', [
             'pokemonTypes' => PokemonType::forFrontend(),
-        ], );
+        ],);
     }
 
     public function store(
