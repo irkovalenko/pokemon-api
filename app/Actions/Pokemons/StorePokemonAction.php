@@ -16,15 +16,20 @@ class StorePokemonAction
 
     public function execute(PokemonFilesData $files, PokemonData $data, User $user): Pokemon
     {
-        $uploadedFiles = $this->fileUploads->execute($files);
-
         $pokemon = Pokemon::create([
             'name' => toKebabCase($data->name),
             'type' => $data->type,
             'description' => $data->description ? [$data->description] : null,
+            'image_path' => null,
+            'cry' => null,
+            'if_banned' => 0,
+        ]);
+
+        $uploadedFiles = $this->fileUploads->execute($files, $pokemon->uuid);
+
+        $pokemon->update([
             'image_path' => $uploadedFiles['image_path'],
             'cry' => $uploadedFiles['cry'],
-            'if_banned' => 0,
         ]);
 
         $this->syncAbilities->execute($pokemon, $data->abilities, $user);

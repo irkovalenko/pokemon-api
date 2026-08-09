@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbilityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PokemonController;
+use App\Http\Controllers\PokemonFileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pokemons/{pokemon:uuid}/edit', [PokemonController::class, 'edit'])->name('pokemons.edit');
     Route::post('/pokemons/{pokemon:uuid}/update', [PokemonController::class, 'update'])->name('pokemons.update');
     Route::delete('/pokemons/{pokemon:uuid}', [PokemonController::class, 'destroy'])->name('pokemons.delete');
+
+
+    // pokemon files - since there is private folder, they cannot be downloaded via link
+    Route::get('/pokemons/{pokemon:uuid}/image', [PokemonFileController::class, 'image'])->name('pokemons.image');
+    Route::get('/pokemons/{pokemon:uuid}/cry', [PokemonFileController::class, 'cry'])->name('pokemons.cry');
 
     // abilities routes
     Route::get('/abilities/search', [AbilityController::class, 'searchAbility'])->name('abilities.search');
@@ -53,4 +59,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

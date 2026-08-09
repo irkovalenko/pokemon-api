@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class PokemonResource extends JsonResource
 {
@@ -18,19 +17,18 @@ class PokemonResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'image_path' => $this->formatFileUrl($this->image_path),
-            'cry' => $this->formatFileUrl($this->cry),
+            'image_path' => $this->resolveFileUrl($this->image_path, 'pokemons.image'),
+            'cry' => $this->resolveFileUrl($this->cry, 'pokemons.cry'),
             'type' => $this->type,
             'if_banned' => $this->if_banned,
             'description' => $this->description,
             'abilities' => AbilityResource::collection($this->whenLoaded('abilities')),
-            'comments' => CommentResource::collection($this->whenLoaded('comments', fn () => $this->comments->whereNull('parent_id'))),
-            'user' => $this->whenLoaded('user', fn () => $this->user->first()?->name),
-
+            'comments' => CommentResource::collection($this->whenLoaded('comments', fn() => $this->comments->whereNull('parent_id'))),
+            'user' => $this->whenLoaded('user', fn() => $this->user->first()?->name),
         ];
     }
 
-    private function formatFileUrl(?string $path): ?string
+    private function resolveFileUrl(?string $path, string $routeName): ?string
     {
         if (! $path) {
             return null;
@@ -40,6 +38,6 @@ class PokemonResource extends JsonResource
             return $path;
         }
 
-        return Storage::url($path);
+        return route($routeName, $this->uuid);
     }
 }
