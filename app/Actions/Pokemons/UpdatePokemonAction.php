@@ -21,7 +21,7 @@ class UpdatePokemonAction
             throw new AuthorizationException('This pokemon cannot be updated.');
         }
 
-        $uploadedFiles = $this->fileUploads->execute($files);
+        $uploadedFiles = $this->fileUploads->execute($files, $pokemon->uuid);
 
         $pokemon->update([
             'name' => toKebabCase($data->name),

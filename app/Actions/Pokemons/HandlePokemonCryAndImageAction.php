@@ -9,10 +9,18 @@ class HandlePokemonCryAndImageAction
     /**
      * @return array{image_path: ?string, cry: ?string}
      */
-    public function execute(PokemonFilesData $files): array
+    public function execute(PokemonFilesData $files, string $pokemonUuid): array
     {
-        $imagePath = $files->image?->store('images/pokemon', 'public');
-        $cryPath = $files->cry?->store('cries', 'public');
+        $imagePath = $files->image?->storeAs(
+            "images/{$pokemonUuid}",
+            $files->image->getClientOriginalName(),
+            'private'
+        );
+        $cryPath = $files->cry?->storeAs( //overwrite if exists
+            "cries/{$pokemonUuid}",
+            $files->cry->getClientOriginalName(),
+            'private'
+        );
 
         return [
             'image_path' => $imagePath,
