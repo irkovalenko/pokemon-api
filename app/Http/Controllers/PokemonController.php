@@ -12,7 +12,9 @@ use App\Actions\Pokemons\UpdatePokemonAction;
 use App\DataTransferObjects\Pokemons\FilterPokemonData;
 use App\DataTransferObjects\Pokemons\PokemonData;
 use App\DataTransferObjects\Pokemons\PokemonFilesData;
+use App\DataTransferObjects\Pokemons\PokemonOutputData;
 use App\Enums\PokemonType;
+use App\Http\Requests\PokemonIndexRequest;
 use App\Http\Requests\PokemonRequest;
 use App\Http\Resources\PokemonResource;
 use App\Models\Pokemon;
@@ -23,12 +25,12 @@ use Inertia\Response;
 
 class PokemonController extends Controller
 {
-    public function index(Request $request, IndexPokemonAction $action): Response
+    public function index(PokemonIndexRequest $request, IndexPokemonAction $action): Response
     {
-        $pokemons = $action->execute(FilterPokemonData::from($request->query()));
+        $pokemons = $action->execute(FilterPokemonData::from($request->validated()));
 
         return Inertia::render('Pokemons/Index', [
-            'pokemons' => PokemonResource::collection($pokemons),
+            'pokemons' => $pokemons->through(fn(Pokemon $pokemon) => PokemonOutputData::fromModel($pokemon)),
             'pokemonTypes' => PokemonType::forFrontend(),
         ]);
     }
