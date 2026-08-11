@@ -118,7 +118,7 @@ export default function Pokemons({ auth, pokemons, pokemonTypes}) {
                                     )
                                 }
                                     <img
-                                        src={pokemon.image_path}
+                                        src={pokemon.imageUrl}
                                         alt={pokemon.name}
                                         className="w-32 h-32 object-contain"
                                     />
@@ -133,7 +133,7 @@ export default function Pokemons({ auth, pokemons, pokemonTypes}) {
                     </div>
 
                     <div className="flex justify-center gap-2 mt-8">
-                        {pokemons.meta.links.map((link, id) => (
+                        {pokemons.links.map((link, id) => (
                             <button
                                 key={id}
                                 onClick={() => handlePageChange(link.url)}
