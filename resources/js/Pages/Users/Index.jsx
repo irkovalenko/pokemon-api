@@ -86,7 +86,7 @@ export default function Users({auth, users}) {
                                              <td
                                             className="px-6 py-4"
                                             >
-                                                {user.created_at}
+                                                {user.createdAt}
                                             </td>
                                             </tr>
                                             )

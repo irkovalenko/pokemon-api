@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\UserData;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Role;
@@ -12,21 +13,16 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         $users = User::query()
             ->orderBy('role')
             ->latest()
             ->paginate(15)
-            ->through(fn ($user) => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'created_at' => $user->created_at->format('d M Y, H:i:s'),
-            ]);
+            ->through(
+                fn($user) =>
+                UserData::fromModel($user)
+            );
 
         return Inertia::render('Users/Index', [
             'users' => $users,
@@ -35,18 +31,14 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         return Inertia::render('Users/Create');
     }
 
     public function store(UserRequest $request)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         $validated = $request->validated();
         $validated['name'] = ucfirst($validated['name']); // capitalize name
@@ -60,9 +52,7 @@ class UserController extends Controller
 
     public function edit(Request $request, User $user)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         return Inertia::render('Users/Edit', [
             'user' => $user,
@@ -72,9 +62,7 @@ class UserController extends Controller
 
     public function update(UserRequest $request, User $user)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
         $validated = $request->validated();
         $user->update($validated);
