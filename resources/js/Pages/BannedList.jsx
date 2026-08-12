@@ -41,7 +41,7 @@ export default function BannedPokemons({auth, pokemons}) {
                                    </tr>
                                </thead>
                                <tbody>
-                                {pokemons?.data?.map((pokemon) =>
+                                {pokemons?.map((pokemon) =>
                                 (
                                     <tr
                                                                             key={pokemon.uuid}

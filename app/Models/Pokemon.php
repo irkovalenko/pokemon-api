@@ -69,9 +69,4 @@ class Pokemon extends Model
     {
         return $this->user()->exists();
     }
-
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class, 'pokemon_id', 'uuid');
-    }
 }

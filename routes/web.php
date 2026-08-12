@@ -38,11 +38,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/abilities/search', [AbilityController::class, 'searchAbility'])->name('abilities.search');
     Route::patch('/abilities/{ability}', [AbilityController::class, 'update'])->name('abilities.update');
 
-    // comments routes
-    // web.php
-    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
     // user routes
     Route::get('/users', [UserController::class, 'index'])->name('users');

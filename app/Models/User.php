@@ -52,11 +52,6 @@ class User extends Authenticatable
         return $this->role === Role::ADMIN;
     }
 
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-
     public function abilities(): HasMany
     {
         return $this->hasMany(Ability::class);

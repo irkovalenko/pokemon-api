@@ -2,23 +2,19 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router} from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { SpeakerWaveIcon } from '@heroicons/react/24/solid';
-import { useRef, useState } from 'react'; 
-import SecondaryButton from '@/Components/SecondaryButton';
-import CommentBox from '@/Components/CommentBox';
-import CommentItem from '@/Components/CommentItem';
+import { useRef, useState } from 'react';
 
 export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonTypes}) {
 
-    const { data } = pokemon; // data resource json wraps by default in data
     const currentUser = auth.user;
     const isAdmin = currentUser?.role === 'admin';
     const audioRef = useRef(null);
-    const type = pokemonTypes.find((t) => t.value === data.type);
-    const [showCommentBox, setShowCommentBox] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-    const [editContent, setEditContent] = useState('');
+    const type = pokemonTypes.find((t) => t.value === pokemon.type);
+    //const [showCommentBox, setShowCommentBox] = useState(false);
+    //const [editingId, setEditingId] = useState(null);
+    //const [editContent, setEditContent] = useState('');
 
-    const descriptions = data.description ?? [];
+    const descriptions = pokemon.description ?? [];
     const [showAllDescriptions, setShowAllDescriptions] = useState(false);
 
 
@@ -27,11 +23,11 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
             currentUser={auth.currentUser}
             header={
                 <h2 className="text-xl capitalize font-semibold leading-tight text-gray-800">
-                    {data.name}
+                    {pokemon.name}
                 </h2>
             }
         >
-            <Head title={data.name}/>
+            <Head title={pokemon.name}/>
 
             <div className="py-12">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
@@ -39,17 +35,17 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                     <div className="bg-white rounded-lg shadow-md p-8 dark:bg-zinc-900 flex flex-col items-center gap-6">
                         <div className="flex items-center justify-between w-full">
                             <h3 className="self-start px-3 py-1 rounded-full border border-solid border-gray-800 text-gray-700 text-sm">
-                                {data.type} {type?.icon}
+                                {pokemon.type} {type?.icon}
                             </h3>
                             {canBeDeletedOrUpdated && (
-                                <PrimaryButton onClick={() => router.visit(route('pokemons.edit', { uuid: data.uuid }))}>
+                                <PrimaryButton onClick={() => router.visit(route('pokemons.edit', { uuid: pokemon.uuid }))}>
                                     Edit data
                                 </PrimaryButton>
                             )}
 
-                             {isAdmin && !data.if_banned && (
+                             {isAdmin && !pokemon.ifBanned && (
                                     <PrimaryButton onClick={(e) => {
-                                    router.post(route('pokemons.toggleBan', data.uuid));
+                                    router.post(route('pokemons.toggleBan', pokemon.uuid));
                                                                       }
                                     }>
                                 🚫 hide pokemon
@@ -59,25 +55,25 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                             }
                         </div>
 
-                        {data.user && <h3>User: {data.user}</h3>}
+                        {pokemon.userName && <h3>User: {pokemon.userName}</h3>}
 
                         <img
-                            src={data.image_path}
-                            alt={data.name}
+                            src={pokemon.imageUrl}
+                            alt={pokemon.name}
                             className="w-48 h-48 object-contain"
                         />
 
                         <h1 className="text-3xl font-bold capitalize text-gray-800 dark:text-white">
-                            {data.name}
+                            {pokemon.name}
                         </h1>
 
                         <div className="flex justify-between text-sm text-gray-500">
-                            <span>Status: {data.if_banned ? '🚫 Banned' : '✅ Active'}</span>
+                            <span>Status: {pokemon.ifBanned ? '🚫 Banned' : '✅ Active'}</span>
                         </div>
 
-                        {data.cry && (
+                        {pokemon.cryUrl && (
                             <div>
-                                <audio ref={audioRef} src={data.cry}>
+                                <audio ref={audioRef} src={pokemon.cryUrl}>
                                     Your browser does not support audio.
                                 </audio>
                                 <PrimaryButton onClick={() => audioRef.current.play()}>
@@ -92,7 +88,7 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                 Abilities
                             </h2>
                             <div className="flex flex-wrap gap-2">
-    {data.abilities.map((ability) => (
+    {pokemon.abilities.map((ability) => (
         <div key={ability.uuid} className="relative group">
             <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm capitalize cursor-help">
                 {ability.name}
@@ -140,10 +136,13 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
     )}
                             </div>
                     </div>
-
-                    <div className="mt-6">
+    {/*
+<div className="mt-6">
     <div className="flex items-center justify-between mb-4">
-        <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Comments</span>
+        <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+            Comments
+        </span>
+
         <SecondaryButton onClick={() => setShowCommentBox(!showCommentBox)}>
             {showCommentBox ? 'Cancel' : 'Add comment'}
         </SecondaryButton>
@@ -151,42 +150,48 @@ export default function Show({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
 
     {showCommentBox && (
         <div className="mb-4">
-            <CommentBox pokemonId={data.uuid} onSubmitted={() => setShowCommentBox(false)} />
+            <CommentBox
+                pokemonId={pokemon.uuid}
+                onSubmitted={() => setShowCommentBox(false)}
+            />
         </div>
     )}
 
     <div className="flex flex-col gap-3">
-        {data.comments.map((comment) => (
+        {pokemon.comments.map((comment) => (
             <div key={comment.id}>
-            <CommentItem
-            key={comment.id}
-            comment={comment}
-            pokemonId={data.uuid}
-            editingId={editingId}
-            setEditingId={setEditingId}
-            editContent={editContent}
-            setEditContent={setEditContent}
+                <CommentItem
+                    comment={comment}
+                    pokemonId={pokemon.uuid}
+                    editingId={editingId}
+                    setEditingId={setEditingId}
+                    editContent={editContent}
+                    setEditContent={setEditContent}
+                />
 
-            />
-            {comment.replies?.length > 0 && (
-            <div className="ml-6 mt-2 flex flex-col gap-2 border-l-2 border-gray-200 pl-3">
-                {comment.replies.map((reply) => (
-                    <CommentItem
-                        key={reply.id}
-                        comment={reply}
-                        dataId={data.uuid}
-                        editingId={editingId}
-                        setEditingId={setEditingId}
-                        editContent={editContent}
-                        setEditContent={setEditContent}
-                    />
-                ))}
+                {comment.replies?.length > 0 && (
+                    <div className="ml-6 mt-2 flex flex-col gap-2 border-l-2 border-gray-200 pl-3">
+                        {comment.replies.map((reply) => (
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                dataId={pokemon.uuid}
+                                editingId={editingId}
+                                setEditingId={setEditingId}
+                                editContent={editContent}
+                                setEditContent={setEditContent}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
-        )}
-        </div>
         ))}
     </div>
 </div>
+    </div>
+
+</div>
+*/}
 
                 </div>
             </div>
