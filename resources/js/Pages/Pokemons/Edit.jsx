@@ -8,7 +8,7 @@ import axios from 'axios';
 
 export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonTypes }) {
     const { errors: serverErrors } = usePage().props;
-    const [selectedType, setSelectedType] = useState(pokemon.data.type);
+    const [selectedType, setSelectedType] = useState(pokemon.type);
     const { handleSubmit, register, formState: { errors } } = useForm();
 
     // All abilities currently attached to this pokemon. Any of them can be
@@ -17,7 +17,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
     // the shared ability record itself, affecting every other pokemon that
     // uses it. api_id is kept only to show the 🔒 "from PokeAPI" badge.
     const [attachedAbilities, setAttachedAbilities] = useState(
-        pokemon.data.abilities.map((a) => ({
+        pokemon.abilities.map((a) => ({
             uuid: a.uuid,
             name: a.name,
             description: a.description,
@@ -60,8 +60,8 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
             const updated = [...attachedAbilities];
             updated[index] = {
                 ...updated[index],
-                name: data.data.name,
-                description: data.data.description,
+                name: name,
+                description: description,
             };
             setAttachedAbilities(updated);
             setEditingIndex(null);
@@ -120,9 +120,9 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
 
         const abilities = attachedAbilities;
 
-        router.post(route('pokemons.update', pokemon.data.uuid), {
+        router.post(route('pokemons.update', pokemon.uuid), {
             name: values.name,
-            type: selectedType || pokemon.data.type,
+            type: selectedType || pokemon.type,
             description: values.description,
             abilities: JSON.stringify(abilities),
             cry: values.cry?.[0] ?? null,
@@ -140,7 +140,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Edit pokemon {pokemon.data.name}
+                    Edit pokemon {pokemon.name}
                 </h2>
             }
         >
@@ -154,7 +154,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                     <button className="px-4 py-2 bg-white border border-black rounded-md shadow text-sm text-gray-700 dark:bg-zinc-900 dark:text-white">
                                         {selectedType
                                             ? `${pokemonTypes.find((t) => t.value === selectedType)?.icon} ${selectedType}`
-                                            : `Current type: ${pokemon.data.type}`}
+                                            : `Current type: ${pokemon.type}`}
                                     </button>
                                 </Dropdown.Trigger>
                                 <Dropdown.Content align="left" width="70">
@@ -178,7 +178,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                             {canBeDeletedOrUpdated && (
                                 <PrimaryButton
                                     className="bg-red-500 hover:bg-red-600 ml-auto"
-                                    onClick={() => router.delete(route('pokemons.delete', { uuid: pokemon.data.uuid }))}
+                                    onClick={() => router.delete(route('pokemons.delete', { uuid: pokemon.uuid }))}
                                 >
                                     Delete Pokemon
                                 </PrimaryButton>
@@ -189,7 +189,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                             <input
                                 {...register('name', { required: 'Name is required' })}
                                 placeholder="Pokemon name"
-                                defaultValue={pokemon.data.name}
+                                defaultValue={pokemon.name}
                                 className="px-4 py-2 border rounded-md text-sm"
                             />
                             {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
@@ -198,7 +198,7 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                 {...register('description')}
                                 placeholder="Pokemon description"
                                 rows={5}
-                                defaultValue={pokemon.data.description?.[0] ?? ''}
+                                defaultValue={pokemon.description?.[0] ?? ''}
                                 className="px-4 py-2 border rounded-md text-sm"
                             />
                             {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
@@ -348,8 +348,8 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Cry (mp3, ogg)
                                 </label>
-                                {pokemon.data.cry && (
-                                    <p className="text-xs text-gray-500">Current: {pokemon.data.cry}</p>
+                                {pokemon.cry && (
+                                    <p className="text-xs text-gray-500">Current: {pokemon.cry}</p>
                                 )}
                                 <input
                                     type="file"
@@ -363,8 +363,8 @@ export default function Edit({ auth, pokemon, canBeDeletedOrUpdated, pokemonType
                                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Image (png, jpg, jpeg)
                                 </label>
-                                {pokemon.data.image_path && (
-                                    <img src={pokemon.data.image_path} alt="current" className="w-16 h-16 object-contain" />
+                                {pokemon.image_path && (
+                                    <img src={pokemon.image_path} alt="current" className="w-16 h-16 object-contain" />
                                 )}
                                 <input
                                     type="file"

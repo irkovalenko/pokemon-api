@@ -16,7 +16,6 @@ use App\DataTransferObjects\Pokemons\PokemonOutputData;
 use App\Enums\PokemonType;
 use App\Http\Requests\PokemonIndexRequest;
 use App\Http\Requests\PokemonRequest;
-use App\Http\Resources\PokemonResource;
 use App\Models\Pokemon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,16 +34,14 @@ class PokemonController extends Controller
         ]);
     }
 
-    public function banned(Request $request)
+    public function banned(Request $request): Response
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403);
-        }
+        abort_unless($request->user()?->isAdmin(), 403);
 
-        $pokemon = Pokemon::where('if_banned', 1)->get();
+        $pokemons = Pokemon::where('if_banned', 1)->get();
 
         return Inertia::render('BannedList', [
-            'pokemons' => PokemonResource::collection($pokemon), // read how to return dto or collection of dtos
+            'pokemons' => PokemonOutputData::collect($pokemons),
         ]);
     }
 
@@ -85,7 +82,7 @@ class PokemonController extends Controller
         $pokemon = $action->execute($pokemon);
 
         return Inertia::render('Pokemons/Show', [
-            'pokemon' => new PokemonResource($pokemon),
+            'pokemon' => PokemonOutputData::fromModel($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
             'pokemonTypes' => PokemonType::forFrontend(),
         ]);
@@ -96,7 +93,7 @@ class PokemonController extends Controller
         $pokemon = $action->execute($pokemon);
 
         return Inertia::render('Pokemons/Edit', [
-            'pokemon' => new PokemonResource($pokemon),
+            'pokemon' => PokemonOutputData::fromModel($pokemon),
             'canBeDeletedOrUpdated' => $pokemon->canBeDeletedOrUpdated(),
             'pokemonTypes' => PokemonType::forFrontend(),
         ]);
