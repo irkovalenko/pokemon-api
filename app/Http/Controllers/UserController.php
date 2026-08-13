@@ -6,14 +6,16 @@ use App\DataTransferObjects\UserData;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Role;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('viewAny', User::class);
 
         $users = User::query()
             ->orderBy('role')
@@ -29,30 +31,30 @@ class UserController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('create', User::class);
 
         return Inertia::render('Users/Create');
     }
 
     public function store(UserRequest $request)
     {
-        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('create', User::class);
 
         $validated = $request->validated();
-        $validated['name'] = ucfirst($validated['name']); // capitalize name
-        $validated['password'] = bcrypt('changeme123'); // default password
-        User::create($validated);
+        $validated['name'] = ucfirst($validated['name']);
+        $validated['password'] = Hash::make(Str::password(32));
+        $user = User::create($validated);
 
-        // Password::sendResetLink(['email' => $validated['email']]);
+        //Password::sendResetLink(['email' => $user->email]);
 
-        return to_route('users')->with('success', 'User created successfully.');
+        return to_route('users');
     }
 
-    public function edit(Request $request, User $user)
+    public function edit(User $user)
     {
-        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $user);
 
         return Inertia::render('Users/Edit', [
             'user' => $user,
@@ -62,29 +64,20 @@ class UserController extends Controller
 
     public function update(UserRequest $request, User $user)
     {
-        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $user);
 
         $validated = $request->validated();
         $user->update($validated);
 
-        return to_route('users')->with('success', 'User updated successfully.');
+        return to_route('users');
     }
 
-    public function destroy(Request $request, User $user)
+    public function destroy(User $user)
     {
-        if (! $request->user()?->isAdmin()) {
-            abort(403, 'You don\'t have permission to delete users.');
-        }
+        $this->authorize('delete', $user);
 
-        if ($user->isAdmin()) {
-            abort(403, 'Cannot delete an admin.');
-        }
-
-        if ($user->pokemons()->exists()) {
-            abort(403, 'Cannot delete a user who has pokemons.');
-        }
         $user->delete();
 
-        return to_route('users')->with('success', 'User deleted successfully');
+        return to_route('users');
     }
 }
